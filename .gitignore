@@ -1,1 +1,6 @@
 /work
+/__settings__.php
+/.settings
+/.buildpath
+/.htaccess
+/.project
