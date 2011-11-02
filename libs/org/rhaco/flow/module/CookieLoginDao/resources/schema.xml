@@ -1,0 +1,7 @@
+<database>
+	<table name="cookie_login_dao">
+		<column name="id" type="string" require="true" primary="true" />
+		<column name="no" type="string" require="true" />
+		<column name="expires" type="timestamp" require="true" />
+	</table>
+</database>

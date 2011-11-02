@@ -1,0 +1,190 @@
+# SOME DESCRIPTIVE TITLE.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-09-24 23:19+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <team@exsample.com>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+
+#: app/resources/templates/trans.html:1
+#: /resources/templates/trans.html:1
+msgid "It's a dreams come \"true.\\"
+msgstr ""
+
+#: spl/Flow.php:308
+msgid "Method Not Allowed"
+msgstr ""
+
+#: app/libs/flow/module/CoreTestLoginRequiredAlways.php:11
+#: spl/Flow.php:284
+#: /libs/flow/module/CoreTestLoginRequiredAlways.php:11
+msgid "Unauthorized"
+msgstr ""
+
+#: app/resources/templates/trans.html:1
+#: /resources/templates/trans.html:1
+#: CoreTestFlowVar
+msgid "aaa"
+msgstr ""
+
+#: CoreTestM
+msgid "abc"
+msgstr ""
+
+#: com.tokushimakazutaka.net.Growl
+msgid "address"
+msgstr ""
+
+#: com.tokushimakazutaka.net.Growl
+msgid "app_name"
+msgstr ""
+
+#: CoreApp
+#: CoreTestA
+#: CoreTestB
+#: CoreTestC
+#: CoreTestLoginFlow
+#: CoreTestNotTemplate
+#: CoreTestNotUrlMethod
+#: CoreTestPathSwitch
+#: CoreTestPutBlock
+#: CoreTestRedirectMapA
+msgid "args"
+msgstr ""
+
+#: CoreTestN
+msgid "def"
+msgstr ""
+
+#: spl/Flow.php:322
+msgid "direct link not permitted"
+msgstr ""
+
+#: CoreApp
+#: CoreTestA
+#: CoreTestB
+#: CoreTestC
+#: CoreTestLoginFlow
+#: CoreTestNotTemplate
+#: CoreTestNotUrlMethod
+#: CoreTestPathSwitch
+#: CoreTestPutBlock
+#: CoreTestRedirectMapA
+msgid "files"
+msgstr ""
+
+#: com.tokushimakazutaka.io.log.LogGrowl
+msgid "growl"
+msgstr ""
+
+#: spl/Gettext.php:297
+#: spl/Templf.php:500
+msgid "hoge"
+msgstr ""
+
+#: CoreApp
+#: CoreTestA
+#: CoreTestB
+#: CoreTestC
+#: CoreTestLoginFlow
+#: CoreTestNotTemplate
+#: CoreTestNotUrlMethod
+#: CoreTestPathSwitch
+#: CoreTestPutBlock
+#: CoreTestRedirectMapA
+msgid "name"
+msgstr ""
+
+#: spl/Template.php:1099
+msgid "next"
+msgstr ""
+
+#: com.tokushimakazutaka.net.Growl
+msgid "password"
+msgstr ""
+
+#: com.tokushimakazutaka.io.log.LogGrowl
+#: org.rhaco.io.log.LogFile
+msgid "path"
+msgstr ""
+
+#: CoreApp
+#: CoreTestA
+#: CoreTestB
+#: CoreTestC
+#: CoreTestLoginFlow
+#: CoreTestNotTemplate
+#: CoreTestNotUrlMethod
+#: CoreTestPathSwitch
+#: CoreTestPutBlock
+#: CoreTestRedirectMapA
+msgid "pattern"
+msgstr ""
+
+#: com.tokushimakazutaka.net.Growl
+msgid "port"
+msgstr ""
+
+#: spl/Template.php:1087
+msgid "prev"
+msgstr ""
+
+#: CoreApp
+#: CoreTestA
+#: CoreTestB
+#: CoreTestC
+#: CoreTestLoginFlow
+#: CoreTestNotTemplate
+#: CoreTestNotUrlMethod
+#: CoreTestPathSwitch
+#: CoreTestPutBlock
+#: CoreTestRedirectMapA
+msgid "secure_map"
+msgstr ""
+
+#: CoreApp
+#: CoreTestA
+#: CoreTestB
+#: CoreTestC
+#: CoreTestLoginFlow
+#: CoreTestNotTemplate
+#: CoreTestNotUrlMethod
+#: CoreTestPathSwitch
+#: CoreTestPutBlock
+#: CoreTestRedirectMapA
+msgid "sessions"
+msgstr ""
+
+#: com.tokushimakazutaka.net.Growl
+msgid "type"
+msgstr ""
+
+#: CoreApp
+#: CoreTestA
+#: CoreTestB
+#: CoreTestC
+#: CoreTestLoginFlow
+#: CoreTestNotTemplate
+#: CoreTestNotUrlMethod
+#: CoreTestPathSwitch
+#: CoreTestPutBlock
+#: CoreTestRedirectMapA
+msgid "user"
+msgstr ""
+
+#: CoreApp
+#: CoreTestA
+#: CoreTestB
+#: CoreTestC
+#: CoreTestLoginFlow
+#: CoreTestNotTemplate
+#: CoreTestNotUrlMethod
+#: CoreTestPathSwitch
+#: CoreTestPutBlock
+#: CoreTestRedirectMapA
+msgid "vars"
+msgstr ""

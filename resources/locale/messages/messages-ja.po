@@ -1,0 +1,88 @@
+# SOME DESCRIPTIVE TITLE.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-05-04 01:49+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <team@exsample.com>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+
+#: SampleFlow
+#: SampleMediaFlow
+#: org.rhaco.flow.module.BasicCookieLogin
+#: org.rhaco.flow.module.SimpleAuth
+#: org.rhaco.flow.parts.Crud
+#: org.rhaco.flow.parts.Developer
+#: org.rhaco.io.MediaInfo
+#: org.rhaco.net.mail.module.SendGmail
+#: org.rhaco.net.mail.module.Smtp
+#: org.rhaco.net.xml.Atom
+#: org.rhaco.net.xml.Opml
+#: org.rhaco.net.xml.Rss
+#: org.rhaco.service.GoogleAuth
+#: CoreApp
+#: CoreTestA
+#: CoreTestB
+#: CoreTestC
+#: CoreTestFlowVar
+#: CoreTestLoginFlow
+#: CoreTestM
+#: CoreTestN
+#: CoreTestNotTemplate
+#: CoreTestNotUrlMethod
+#: CoreTestPutBlock
+#: CoreTestRedirectMapA
+#: CoreTestTheme
+#: SampleExceptionFlow
+#: org.rhaco.io.log.LogFile
+#: org.rhaco.io.log.LogGrowl
+#: org.rhaco.io.log.LogOneFile
+#: org.rhaco.io.log.LogPost
+#: org.rhaco.net.Growl
+#: org.rhaco.net.mail.Mail
+msgid ""
+msgstr "Project-Id-Version: PACKAGE VERSION
+Report-Msgid-Bugs-To: 
+POT-Creation-Date: 2010-09-24 23:19+0900
+PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+Last-Translator: FULL NAME <EMAIL@ADDRESS>
+Language-Team: LANGUAGE <team@exsample.com>
+Plural-Forms: nplurals=1; plural=0;
+"
+
+#: /resources/templates/trans.html:1
+msgid "It's a dreams come \"true.\\"
+msgstr "ああ'アア"
+
+#: Flow.php:308
+msgid "Method Not Allowed"
+msgstr ""
+
+#: Flow.php:284
+#: /libs/flow/module/CoreTestLoginRequiredAlways.php:11
+msgid "Unauthorized"
+msgstr "いいいい"
+
+#: /resources/templates/trans.html:1
+msgid "aaa"
+msgstr "お\"オ\\尾"
+
+#: Flow.php:322
+msgid "direct link not permitted"
+msgstr ""
+
+#: Gettext.php:298
+#: Templf.php:489
+msgid "hoge"
+msgstr ""
+
+#: Template.php:1104
+msgid "next"
+msgstr ""
+
+#: Template.php:1092
+msgid "prev"
+msgstr ""

@@ -1,0 +1,8 @@
+<database name="cache_dao">
+	<table name="cache_dao">
+		<column name="id" type="string" />
+		<column name="data" type="text" />
+		<column name="expiry" type="timestamp" />
+		<column name="serialize" type="boolean" />
+	</table>
+</database>

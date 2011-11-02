@@ -1,0 +1,46 @@
+<rt:extends href="index.html" />
+
+<rt:block name="content">
+<a href="{$t.package_method_url('do_create',$model_name)}">create</a>
+
+<form rt:ref="true">
+	<input type="text" name="query" />
+	<input type="submit" value="search" />
+</form>
+
+<div class="pager">
+	<rt:pager />
+</div>
+
+<table class="list" rt:param="object_list" rt:var="object" rt:counter="counter">
+<thead>
+	<tr>
+		<th></th>
+		<rt:loop param="{$cf.column_names($model)}" var="name">
+		<th><a href="?order={$name}&porder={$porder}&query={$query}">{$cf.label($model,$name)}</a></th>
+		</rt:loop>
+	</tr>
+</thead>
+<tbody>
+	<tr class="odd">
+		<td>
+			<form action="{$t.package_method_url('do_drop',$model_name)}" method="post">
+				<rt:loop param="{$cf.column_names($object)}" var="name">
+					<rt:if param="{$cf.is_primary($object,$name)}">
+						<input type="hidden" name="primary[{$name}]" value="{$cf.value($object,$name)}" />
+					</rt:if>
+				</rt:loop>
+				<input type="submit" value="drop" />
+			</form>
+		</td>
+		<rt:loop param="{$cf.column_names($object)}" var="name">
+			<rt:if param="{$cf.is_primary($object,$name)}">
+				<td><a href="{$t.package_method_url('do_detail',$model_name)}?{$t.query($cf.primary_values($object),'primary')}">{$t.html($cf.value($object,$name),200)}</a></td>
+			<rt:else />
+				<td>{$t.html($cf.value($object,$name),200)}</td>
+			</rt:if>
+		</rt:loop>
+	</tr>
+</tbody>
+</table>
+</rt:block>

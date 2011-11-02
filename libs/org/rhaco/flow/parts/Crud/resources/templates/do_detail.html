@@ -1,0 +1,12 @@
+<rt:extends href="./index.html" />
+
+<rt:block name="content">
+<a href="{$t.package_method_url('do_find',$model_name)}">read</a>
+<a href="{$t.package_method_url('do_update',$model_name)}?{$t.query($cf.primary_values($object),'primary')}">update</a>
+
+<table class="detail">
+<rt:loop param="{$cf.column_names($object)}" var="name">
+<tr><th>{$cf.label($object,$name)}</th><td>{$t.html($cf.value($object,$name))}</td></tr>
+</rt:loop>
+</table>
+</rt:block>

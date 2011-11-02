@@ -1,0 +1,7 @@
+<database>
+	<table name="session_dao">
+		<column name="id" type="string" require="true" primary="true" />
+		<column name="data" type="text" />
+		<column name="expires" type="number" require="true" />
+	</table>
+</database>

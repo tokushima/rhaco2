@@ -1,0 +1,8 @@
+<vars>
+	<var name="hoge">
+		123456789
+	</var>
+	<var name="fuga">
+		ABCDEFG
+	</var>
+</vars>

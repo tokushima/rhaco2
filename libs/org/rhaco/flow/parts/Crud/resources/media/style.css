@@ -1,0 +1,21 @@
+body{ margin:0; padding:0; }
+.list{ margin: 5px; border-top:1px solid #cccccc; border-left:1px solid #cccccc;
+		border-collapse:collapse; border-spacing:0; empty-cells:show; background-color: #eeeeee; }
+.list .even{ background-color: #fefefe; }
+.list .odd{ background-color: #eeeeee; }
+.list th{ border-right:1px solid #cccccc; border-bottom:1px solid #cccccc; color:#ff3333; font-weight: bold;
+			background-color: #ffffff; background-position:left top; text-align:center; padding: 3px; font-size: 14px; }
+.list td{ border-right:1px solid #cccccc; border-bottom:1px solid #cccccc; color: #666666; padding: 3px; font-size: 11px; }
+
+.detail{ margin: 5px; border-top:1px solid #cccccc; border-left:1px solid #cccccc;
+		border-collapse:collapse; border-spacing:0; empty-cells:show; background-color: #eeeeee; }
+.detail th{ border-right:1px solid #cccccc; border-bottom:1px solid #cccccc; color:#ff3333; font-weight: bold;
+			background-color: #ffffff; background-position:left top; text-align:right; padding: 3px; font-size: 14px; }
+.detail td{ border-right:1px solid #cccccc; border-bottom:1px solid #cccccc; color: #666666; padding: 3px; font-size: 11px; }
+
+.pager{ margin: 5px; font-size: 13px; }
+.pager strong{ padding:3px 4px 2px 4px; text-align:center; color:#ff3333; }
+.pager a{ padding:3px 4px 2px 4px; text-align:center; text-decoration:none; font-weight:bold; color:#666666; border:1px solid #cccccc; background:#eeeeee; }
+.pager a:hover{ background:#ffcc99; }
+.pager a:visited{ background:#eeeeee; }
+.pager a:active{ background:#ccffcc; }

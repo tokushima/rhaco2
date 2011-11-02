@@ -1,0 +1,18 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<rt:block name="content">
+
+<table class="list" rt:param="{$models}" rt:var="class">
+<tr class="even">
+	<td><a href="{$t.package_method_url('do_find',$class)}">{$class}</a></td>
+</tr>
+</table>
+
+</rt:block>
+</body>
+</html>

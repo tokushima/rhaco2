@@ -1,0 +1,26 @@
+<rt:extends href="./index.html" />
+
+<rt:block name="content">
+<a href="{$t.package_method_url('do_find',$model_name)}">read</a>
+
+<form method="post" rt:aref="true">
+<table class="detail">
+<rt:loop param="{$cf.column_names($model)}" var="column_name">
+<tr>
+	<th>{$cf.label($model,$column_name)}</th>
+	<td>{$cf.form($model,$column_name)}</td>
+</tr>
+</rt:loop>
+</table>
+<input type="submit" value="save" name="save" />
+<input type="submit" value="save and add another" name="save_and_add_another" />
+
+</form>
+<rt:invalid messages="exceptions">
+<ul>
+<rt:loop param="exceptions" var="e">
+<li>{$e}</li>
+</rt:loop>
+</ul>
+</rt:invalid>
+</rt:block>
