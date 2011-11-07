@@ -763,7 +763,7 @@ abstract class Dao extends Object{
 	/***
 		# auto_code_add_string
 		Dbc::temp("test_1","test_dao_auto_code_add",array("id"=>"serial","code1"=>"string","code2"=>"string","code3"=>"string"));
-		$TestDaoRequireTime = create_class('
+		$TestDaoAutoCode = create_class('
 			protected $id;
 			protected $code1;
 			protected $code2;
@@ -775,19 +775,72 @@ abstract class Dao extends Object{
 			@var string $code2 @{"auto_code_add":true,"max":10}
 			@var string $code3 @{"auto_code_add":true,"max":40}
 		');
-		$obj = new $TestDaoRequireTime();
+		C($TestDaoAutoCode)->find_delete();
+		
+		$obj = new $TestDaoAutoCode();
 		eq(null,$obj->code1());
 		eq(null,$obj->code2());
 		eq(null,$obj->code3());
 		$obj->save();
 
-		foreach(C($TestDaoRequireTime)->find() as $o){
+		foreach(C($TestDaoAutoCode)->find() as $o){
 			neq(null,$o->code1());
 			neq(null,$o->code2());
 			neq(null,$o->code3());
 			eq(32,strlen($o->code1()));
 			eq(10,strlen($o->code2()));
 			eq(40,strlen($o->code3()));
+		}
+		
+		$TestDaoAutoCodeDigit = create_class('
+		',$TestDaoAutoCode,'
+			@var string $code1 @{"auto_code_add":true,"ctype":"digit"}
+			@var string $code2 @{"auto_code_add":true,"max":10,"ctype":"digit"}
+			@var string $code3 @{"auto_code_add":true,"max":40,"ctype":"digit"}
+		');
+		C($TestDaoAutoCodeDigit)->find_delete();
+		
+		$obj = new $TestDaoAutoCodeDigit();
+		eq(null,$obj->code1());
+		eq(null,$obj->code2());
+		eq(null,$obj->code3());
+		$obj->save();
+
+		foreach(C($TestDaoAutoCodeDigit)->find() as $o){
+			neq(null,$o->code1());
+			neq(null,$o->code2());
+			neq(null,$o->code3());
+			eq(32,strlen($o->code1()));
+			eq(10,strlen($o->code2()));
+			eq(40,strlen($o->code3()));
+			eq(true,ctype_digit($o->code1()));
+			eq(true,ctype_digit($o->code2()));
+			eq(true,ctype_digit($o->code3()));
+		}
+		$TestDaoAutoCodeAlpha = create_class('
+		',$TestDaoAutoCode,'
+			@var string $code1 @{"auto_code_add":true,"ctype":"alpha"}
+			@var string $code2 @{"auto_code_add":true,"max":10,"ctype":"alpha"}
+			@var string $code3 @{"auto_code_add":true,"max":40,"ctype":"alpha"}
+		');
+		C($TestDaoAutoCodeAlpha)->find_delete();
+		
+		$obj = new $TestDaoAutoCodeAlpha();
+		eq(null,$obj->code1());
+		eq(null,$obj->code2());
+		eq(null,$obj->code3());
+		$obj->save();
+
+		foreach(C($TestDaoAutoCodeAlpha)->find() as $o){
+			neq(null,$o->code1());
+			neq(null,$o->code2());
+			neq(null,$o->code3());
+			eq(32,strlen($o->code1()));
+			eq(10,strlen($o->code2()));
+			eq(40,strlen($o->code3()));
+			eq(true,ctype_alpha($o->code1()));
+			eq(true,ctype_alpha($o->code2()));
+			eq(true,ctype_alpha($o->code3()));
 		}
 	 */
 	/***
@@ -2542,6 +2595,7 @@ abstract class Dao extends Object{
 		$code = '';
 		$max = $this->a($prop_name,'max',32);
 		$ctype = $this->a($prop_name,'ctype','alnum');
+		if($ctype != 'alnum' && $ctype != 'alpha' && $ctype != 'digit') throw new LogicException('unexpected ctype');
 		$char = '';
 		if($ctype == 'alnum' || $ctype == 'digit') $char .= '0123456789';
 		if($ctype != 'digit'){
