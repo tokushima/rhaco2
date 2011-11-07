@@ -2423,14 +2423,7 @@ abstract class Dao extends Object{
 				}
 			}else if($new && ($this->{$column->name()}() === null || $this->{$column->name()}() === '')){
 				if($this->a($column->name(),'type') == 'string' && $this->a($column->name(),'auto_code_add') === true){
-					$code = '';
-					$max = $this->a($column->name(),'max',32);
-					while(empty($code) || C($this)->find_count(Q::eq($column->name(),$code)) > 0){
-						$code = '';
-						while(strlen($code) < $max) $code .= md5(microtime().mt_rand());
-						$code = substr($code,0,$max);
-					}
-					$this->{$column->name()}($code);
+					$this->set_unique_code($column->name());
 				}else if($this->a($column->name(),'auto_now_add') === true){
 					switch($this->a($column->name(),'type')){
 						case 'timestamp':
@@ -2539,6 +2532,28 @@ abstract class Dao extends Object{
 				}
 			}
 		 */
+	}
+	/**
+	 * 指定のプロパティにユニークコードをセットする
+	 * @param string $prop_name
+	 * @return string 生成されたユニークコード
+	 */
+	final public function set_unique_code($prop_name){
+		$code = '';
+		$max = $this->a($prop_name,'max',32);
+		$ctype = $this->a($prop_name,'ctype','alnum');
+		$char = '';
+		if($ctype == 'alnum' || $ctype == 'digit') $char .= '0123456789';
+		if($ctype != 'digit'){
+		 	if($this->a($prop_name,'upper',false) === true) $char .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		 	if($this->a($prop_name,'lower',true) === true) $char .= 'abcdefghijklmnopqrstuvwxyz';
+		}
+		$charl = strlen($char) - 1;
+		while($code == '' || C($this)->find_count(Q::eq($prop_name,$code)) > 0){
+			for($code='',$i=0;$i<$max;$i++) $code .= $char[mt_rand(0,$charl)];
+		}
+		$this->{$prop_name}($code);
+		return $code;
 	}
 	/**
 	 * DBの値と同じにする
