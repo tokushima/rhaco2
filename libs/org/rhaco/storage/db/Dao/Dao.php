@@ -1139,10 +1139,7 @@ abstract class Dao extends Object{
 	final private function func_query(Daq $daq,$is_list=false){
 		$statement = $this->query($daq);
 		$errors = $statement->errorInfo();
-		if(isset($errors[1])){
-			C($this)->rollback();
-			throw new DaoException('['.$errors[1].'] '.(isset($errors[2]) ? $errors[2] : '').PHP_EOL.'( '.$daq->sql().' )');
-		}
+		if(isset($errors[1])) throw new DaoException('['.$errors[1].'] '.(isset($errors[2]) ? $errors[2] : '').PHP_EOL.'( '.$daq->sql().' )');
 		if($statement->columnCount() == 0) return ($is_list) ? array() : null;
 		return ($is_list) ? $statement->fetchAll(PDO::FETCH_ASSOC) : $statement->fetchAll(PDO::FETCH_COLUMN,0);
 	}
@@ -2146,21 +2143,17 @@ abstract class Dao extends Object{
 	/**
 	 * 検索結果をひとつ取得する
 	 *
-	 * @return $this
+	 * @return self
 	 */
 	final public function find_get(){
 		$dao = R($this->get_called_class());
 		$args = func_get_args();
-		$args[] = new Paginator(1,1);
-		$result = null;
-
-		$it = call_user_func_array(array(C($dao),'find'),$args);
-		foreach($it as $p){
-			$result = $p;
-			break;
-		}
-		if($result === null) throw new NotfoundDaoException(trans('{1} not found',get_class($dao)));
-		return $result;
+		$query = new Q();
+		$query->add($dao->__find_conds__());
+		$query->add(new Paginator(1,1));
+		if(!empty($args)) call_user_func_array(array($query,'add'),$args);
+		foreach(self::get_statement_iterator($dao,$query) as $d) return $d;
+		throw new NotfoundDaoException(trans('{1} not found',get_class($dao)));
 		/***
 			Dbc::temp("test_1","test_dao_find_get",array("id"=>"serial","value"=>"string"));
 			Dao::instant("test_dao_find_get","test_1","value=aaa")->save();
@@ -2255,6 +2248,17 @@ abstract class Dao extends Object{
 			eq(4,sizeof($r));
 		 */
 	}
+	final static private function get_statement_iterator($dao,$query){
+		if(!$query->is_order_by()){
+			foreach($dao->primary_columns() as $column) $query->order($column->name());
+		}
+		$paginator = $query->paginator();
+		$daq = $dao->call_module('select_sql',$dao,$query,$paginator);
+		$statement = $dao->query($daq);
+		$errors = $statement->errorInfo();
+		if(isset($errors[1])) throw new DaoException('['.$errors[1].'] '.(isset($errors[2]) ? $errors[2] : ''));
+		return new DaoStatementIterator($dao,$statement);
+	}
 	/**
 	 * 検索を実行する
 	 *
@@ -2265,24 +2269,13 @@ abstract class Dao extends Object{
 		$dao = R($this->get_called_class());
 		$query = new Q();
 		$query->add($dao->__find_conds__());
-
 		if(!empty($args)) call_user_func_array(array($query,'add'),$args);
-		if(!$query->is_order_by()){
-			foreach($dao->primary_columns() as $column) $query->order($column->name());
-		}
 		$paginator = $query->paginator();
 		if($paginator instanceof Paginator){
 			$paginator->total(call_user_func_array(array(C($this->get_called_class()),'find_count'),$args));
 			if($paginator->total() == 0) return array();
 		}
-		$daq = $dao->call_module('select_sql',$dao,$query,$paginator);
-		$statement = $dao->query($daq);
-		$errors = $statement->errorInfo();
-		if(isset($errors[1])){
-			C($this->get_called_class())->rollback();
-			throw new DaoException('['.$errors[1].'] '.(isset($errors[2]) ? $errors[2] : ''));
-		}
-		return new DaoStatementIterator($dao,$statement);
+		return self::get_statement_iterator($dao,$query);
 		/***
 			Dbc::temp("test_1","test_dao_find_or",array("id"=>"serial","value"=>"string","no"=>"number"));
 			Dao::instant("test_dao_find_or","test_1","value=A,no=1")->save();
@@ -2615,24 +2608,9 @@ abstract class Dao extends Object{
 	 */
 	final public function sync(){
 		$query = new Q();
-		$paginator = new Paginator(1,1);
-		foreach($this->primary_columns() as $column){
-			$query->add(Q::eq($column->name(),$this->{$column->name()}()));
-		}
-		/**
-		 * selectを実行するSQL文の生成
-		 * @param self $this
-		 * @return Daq
-		 */
-		$daq = $this->call_module('select_sql',$this,$query,$paginator);
-		$statement = $this->query($daq);
-		$errors = $statement->errorInfo();
-		if(isset($errors[1])){
-			C($this)->rollback();
-			throw new DaoException('['.$errors[1].'] '.(isset($errors[2]) ? $errors[2] : ''));
-		}
-		$it = new DaoStatementIterator($this,$statement);
-		foreach($it as $dao){
+		$query->add(new Paginator(1,1));
+		foreach($this->primary_columns() as $column) $query->add(Q::eq($column->name(),$this->{$column->name()}()));
+		foreach(self::get_statement_iterator($this,$query) as $dao){
 			$this->cp($dao);
 			return $this;
 		}
