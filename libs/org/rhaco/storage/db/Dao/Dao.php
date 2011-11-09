@@ -2151,7 +2151,7 @@ abstract class Dao extends Object{
 	final public function find_get(){
 		$dao = R($this->get_called_class());
 		$args = func_get_args();
-		$args[] = new Paginator(1,1);
+		$args[] = new Paginator(1,1,1);
 		$result = null;
 
 		$it = call_user_func_array(array(C($dao),'find'),$args);
@@ -2271,7 +2271,7 @@ abstract class Dao extends Object{
 			foreach($dao->primary_columns() as $column) $query->order($column->name());
 		}
 		$paginator = $query->paginator();
-		if($paginator instanceof Paginator){
+		if($paginator instanceof Paginator && $paginator->total() < 1){
 			$paginator->total(call_user_func_array(array(C($this->get_called_class()),'find_count'),$args));
 			if($paginator->total() == 0) return array();
 		}
