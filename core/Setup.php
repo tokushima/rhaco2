@@ -190,7 +190,7 @@ class Setup extends Object{
 			Test::verify($value,$req->in_vars("m"),$req->in_vars("b"));
 		}
 		Test::flush();
-		self::println(sprintf("memory_get_usage: %s Mbyte ( %s sec )\n",number_format((memory_get_usage() / 1024 / 1024),3),number_format((microtime(true)-$start_time),3)));
+		self::println(sprintf(" ( %s sec / %s MByte) \n",number_format((microtime(true)-$start_time),3),number_format((memory_get_usage() / 1024 / 1024),3)));
 	}
 	/**
 	 * vendorsを削除しライブラリをimportする
