@@ -84,10 +84,13 @@ function test_browser(){
  * @return string
  */
 function test_map_url($name){
-	list($file) = debug_backtrace(false);
+	list($entry,$map_name) = (strpos($name,'::') !== false) ? explode('::',$name,2) : array(Test::current_entry(),$name);
+	$maps = Test::flow_output_maps($entry);
 	$args = func_get_args();
-	array_unshift($args,$file["file"]);
-	return call_user_func_array(array("Test","map_url"),$args);
+	array_shift($args);
+	App::branch($entry);
+	if(isset($maps[$map_name][sizeof($args)])) return App::url(vsprintf($maps[$map_name][sizeof($args)],$args));
+	throw new RuntimeException($name.'['.sizeof($args).'] not found');
 }
 /**
  * テスト用Httpのアクセス結果を取得する

@@ -12,10 +12,11 @@ class Test extends Object{
 	static private $each_flush = false;
 	static private $result = array();
 	static private $current_class;
+	static private $current_entry;
 	static private $current_method;
 	static private $current_file;
 	static private $in_test = false;
-	static private $maps = array();
+	static private $flow_output_maps;
 	static private $current_map_test_file;
 
 	/**
@@ -59,52 +60,54 @@ class Test extends Object{
 		print(new self());
 		self::clear();
 	}
-	/**
-	 * doctestを取得する
-	 * @return array
-	 */
-	final static public function get_doctest($path){
+	final static public function search_path(){
+		return array(App::path(),App::path('tests').'/',Lib::path());
+	}
+	final static private function get_unittest($filename){
 		$result = array();
-		$type = $class_name = null;
-		$filename = is_file($path) ? $path : App::path($path.".php");
+		$result['@']['line'] = 0;
+		$result['@']['blocks'][] = array($filename,$filename,0);
+		return array('filename'=>$filename,'class_name'=>null,'entry_name'=>null,'tests'=>$result);
+	}
+	final static private function get_entry_doctest($filename){
+		$entry = basename($filename,'.php');
+		$result = array();
+		$read = Text::uld(File::read($filename));
 
-		if(is_file($filename)){
-			$type = 'app';
-			$read = Text::uld(File::read($filename));
-
-			if(Tag::setof($app,$read,"app")){
-				if(preg_match_all("/<!--"."-(.+?)-->/s",$read,$match,PREG_OFFSET_CAPTURE)){
-					foreach($match[1] as $key => $m){
-						$line = self::space_line_count(substr($read,0,$m[1]));
-						$test_block = str_repeat("\n",$line).$m[0];
-						$test_block_name = preg_match("/^[\s]*#(.+)/",$test_block,$match) ? trim($match[1]) : null;
-						if(trim($test_block) == '') $test_block = null;
-						
-						$result['@']['line'] = $line;
-						$result['@']['blocks'][] = array($test_block_name,$test_block,$line);
-					}
-					self::merge_setup_teardown($result);
+		if(Tag::setof($app,$read,'app')){
+			if(preg_match_all("/<!--"."-(.+?)-->/s",$read,$match,PREG_OFFSET_CAPTURE)){
+				foreach($match[1] as $key => $m){
+					$line = self::space_line_count(substr($read,0,$m[1]));
+					$test_block = str_repeat("\n",$line).$m[0];
+					$test_block_name = preg_match("/^[\s]*#(.+)/",$test_block,$match) ? trim($match[1]) : null;
+					if(trim($test_block) == '') $test_block = null;
+					
+					$result['@']['line'] = $line;
+					$result['@']['blocks'][] = array($test_block_name,$test_block,$line);
 				}
+				self::merge_setup_teardown($result);
 			}
-		}else{
-			$type = 'class';
-			$class_name = (!class_exists($path) && !interface_exists($path)) ? Lib::import($path) : $path;
-			$rc = new ReflectionClass($class_name);
-			$filename = $rc->getFileName();
-			$class_src_lines = file($filename);
-			$class_src = implode("",$class_src_lines);
-			
-			foreach($rc->getMethods() as $method){
-				if($method->getDeclaringClass()->getName() == $rc->getName()){
-					$method_src = implode('',array_slice($class_src_lines,$method->getStartLine()-1,$method->getEndLine()-$method->getStartLine(),true));				
-					$result = array_merge($result,self::get_method_doctest($rc->getName(),$method->getName(),$method->getStartLine(),$method->isPublic(),$method_src));
-					$class_src = str_replace($method_src,str_repeat("\n",self::space_line_count($method_src)),$class_src);
-				}
-			}
-			$result = array_merge($result,self::get_method_doctest($rc->getName(),'@',1,false,$class_src));
-			self::merge_setup_teardown($result);
 		}
-		return array('type'=>$type,'filename'=>$filename,'class_name'=>$class_name,'tests'=>$result);
+		return array('filename'=>$filename,'class_name'=>null,'entry_name'=>$entry,'tests'=>$result);
+	}
+	final static private function get_doctest($path){
+		$result = array();
+		$class_name = (!class_exists($path) && !interface_exists($path)) ? Lib::import($path) : $path;
+		$rc = new ReflectionClass($class_name);
+		$filename = $rc->getFileName();
+		$class_src_lines = file($filename);
+		$class_src = implode('',$class_src_lines);
+		
+		foreach($rc->getMethods() as $method){
+			if($method->getDeclaringClass()->getName() == $rc->getName()){
+				$method_src = implode('',array_slice($class_src_lines,$method->getStartLine()-1,$method->getEndLine()-$method->getStartLine(),true));				
+				$result = array_merge($result,self::get_method_doctest($rc->getName(),$method->getName(),$method->getStartLine(),$method->isPublic(),$method_src));
+				$class_src = str_replace($method_src,str_repeat("\n",self::space_line_count($method_src)),$class_src);
+			}
+		}
+		$result = array_merge($result,self::get_method_doctest($rc->getName(),'@',1,false,$class_src));
+		self::merge_setup_teardown($result);
+		return array('filename'=>$filename,'class_name'=>$class_name,'entry_name'=>null,'tests'=>$result);
 	}
 	final static private function merge_setup_teardown(&$result){
 		if(isset($result['@']['blocks'])){
@@ -137,7 +140,7 @@ class Test extends Object{
 	}
 	final static private function verify_format($path){
 		if(php_sapi_name() == 'cli' && substr(PHP_OS,0,3) != 'WIN'){
-			$f = " Testing.. ".$path;
+			$f = ' Testing.. '.$path;
 			$l = strlen($f);
 			print($f);
 			self::verify($path);
@@ -155,10 +158,11 @@ class Test extends Object{
 		foreach(Lib::classes(true) as $path => $class){
 			self::verify_format($path);
 		}
-		if(is_dir(App::path())){
-			foreach(File::ls(App::path()) as $f){
-				if($f->is_ext('php') && !$f->is_private()){
-					self::verify_format($f->oname());
+		list($entry_path,$test_path) = self::search_path();
+		foreach(array($entry_path,$test_path) as $p){
+			if(is_dir($p)){
+				foreach(File::ls($p) as $f){
+					if($f->is_ext('php') && !$f->is_private()) self::verify_format($f->oname());
 				}
 			}
 		}
@@ -172,9 +176,41 @@ class Test extends Object{
 	 */
 	final public static function verify($class_path,$method_name=null,$block_name=null){
 		Exceptions::clear();
-		$doctest = self::get_doctest($class_path);
+		list($entry_path,$tests_path) = self::search_path();
+		try{
+			$doctest = self::get_doctest(Lib::import($class_path));
+		}catch(Exception $e){
+			if(is_file($class_path)){
+				$doctest = (strpos($class_path,'/tests/') === false) ? self::get_entry_doctest($class_path) : self::get_unittest($class_path);
+			}else{
+				if(is_file($f=$entry_path.'/'.$class_path.'.php')){
+					$doctest = self::get_entry_doctest($f);
+				}else if(is_file($f=($tests_path.str_replace('.','/',$class_path).'.php'))){
+					$doctest = self::get_unittest($f);
+				}else{
+					throw new ErrorException($class_path.' test not found');
+				}
+			}
+		}
+		if(!isset(self::$flow_output_maps)){
+			self::$flow_output_maps = array();
+			foreach(File::ls($entry_path) as $app_file){
+				$entry_name = basename($app_file,'.php');
+				$parse_app = Flow::parse_app($app_file);
+				foreach($parse_app['apps'] as $app){
+					if($app['type'] == 'handle'){
+						foreach($app['maps'] as $p => $c){
+							$count = 0;
+							if(!empty($p)) $p = substr(preg_replace_callback("/([^\\\\])(\(.*?[^\\\\]\))/",create_function('$m','return $m[1]."%s";'),' '.$p,-1,$count),1);
+							if(!empty($c['name'])) self::$flow_output_maps[$entry_name][$c['name']][$count] = $p;
+						}
+					}
+				}
+			}
+		}
 		self::$current_file = $doctest['filename'];
-		self::$current_class = $doctest['class_name'];		
+		self::$current_class = $doctest['class_name'];
+		self::$current_entry = $doctest['entry_name'];
 		self::$current_map_test_file = null;
 		self::$current_method = null;
 
@@ -188,20 +224,26 @@ class Test extends Object{
 					foreach($tests['blocks'] as $test_block){
 						list($name,$block) = $test_block;
 						if($block_name === null || $block_name === $name){
-							if($doctest['type'] == 'app'){
+							if(isset($doctest['entry_name'])){
 								$pre_branch = App::branch();
 								App::branch(new File($doctest['filename']));
 								self::$current_map_test_file = $doctest['filename'];
 							}
 							try{
 								ob_start();
-								if(isset($tests['__setup__'])) eval($tests['__setup__'][1]);
-								eval($block);
-								if(isset($tests['__teardown__'])) eval($tests['__teardown__'][1]);
-								Exceptions::clear();
-								if($doctest['type'] == 'app'){
-									App::branch($pre_branch);
+								if(!isset($doctest['class_name']) && !isset($doctest['entry_name'])){
+									if(is_file($f=(dirname($doctest['filename']).'/__setup__.php'))) include($f);
+									include($doctest['filename']);
+									if(is_file($f=(dirname($doctest['filename']).'/__teardown__.php'))) include($f);
+								}else{
+									if(isset($tests['__setup__'])) eval($tests['__setup__'][1]);
+									eval($block);
+									if(isset($tests['__teardown__'])) eval($tests['__teardown__'][1]);
 								}
+								Exceptions::clear();
+								if(isset($doctest['entry_name'])){
+									App::branch($pre_branch);
+								}								
 								$result = ob_get_clean();
 								if(preg_match("/(Parse|Fatal) error:.+/",$result,$match)) throw new ErrorException($match[0]);
 							}catch(Exception $e){
@@ -218,7 +260,7 @@ class Test extends Object{
 									}
 								}
 								self::$result[self::$current_file][self::$current_class][self::$current_method][$line][] = array("exception",$message,$file,$line);
-								Log::warn("[".$line.":".$file."] ".$message);
+								Log::warn('['.$line.':'.$file.'] '.$message);
 							}
 						}
 					}
@@ -262,8 +304,8 @@ class Test extends Object{
 		return true;
 	}
 	protected function __str__(){
-		$result = "";
-		$tab = "  ";
+		$result = '';
+		$tab = '  ';
 		$success = $fail = $none = 0;
 		$cli = (isset($_SERVER['argc']) && !empty($_SERVER['argc']) && substr(PHP_OS,0,3) != 'WIN');
 
@@ -369,37 +411,13 @@ class Test extends Object{
 		$vars = (is_file($path)) ? unserialize(File::read($path)) : array();
 		return array_key_exists($name,$vars) ? $vars[$name] : null;
 	}
-	/**
-	 * xmlのmapのnameからurlを返す
-	 * @param string $test_file テストファイルパス
-	 * @param string $map_name テストファイルにひも付くアプリケーションXMLのMAP名
-	 * @return string
-	 */
-	static public function map_url($test_file,$map_name){
-		$args = func_get_args();
-		array_shift($args);
-		array_shift($args);
-
-		if(!empty(self::$current_map_test_file)) $test_file = self::$current_map_test_file;
-		if(!isset(self::$maps[$test_file]) && is_file($test_file)){
-			$parse_app = Flow::parse_app($test_file);
-			foreach($parse_app['apps'] as $app){
-				if($app['type'] == 'handle'){
-					foreach($app['maps'] as $p => $c){
-						$count = 0;
-						if(!empty($p)) $p = substr(preg_replace_callback("/([^\\\\])(\(.*?[^\\\\]\))/",create_function('$m','return $m[1]."%s";')," ".$p,-1,$count),1);
-						if(!empty($c['name'])) self::$maps[$test_file][$c['name']][$count] = $p;
-					}
-				}
-			}
-		}
-		if(!isset(self::$maps[$test_file])) throw new InvalidArgumentException($test_file." is not app");
-		if(!isset(self::$maps[$test_file][$map_name]) || !isset(self::$maps[$test_file][$map_name][sizeof($args)])){
-			throw new InvalidArgumentException($test_file."[".$map_name."](".sizeof($args).") not found");
-		}
-		return App::url(vsprintf(self::$maps[$test_file][$map_name][sizeof($args)],$args));
-	}
 	final static private function space_line_count($value){
 		return sizeof(explode("\n",$value)) - 1;
+	}
+	static public function current_entry(){
+		return self::$current_entry;
+	}
+	static public function flow_output_maps($entry_name=null){
+		return (isset($entry_name)) ? self::$flow_output_maps[$entry_name] : self::$flow_output_maps;
 	}
 }
