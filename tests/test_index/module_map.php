@@ -1,6 +1,6 @@
 <?php
 $b = test_browser();
-$b->do_get(test_map_url("test_index::module_map"));
+$b->do_get(test_map_url("module_map"));
 eq(200,$b->status());
 meq("INDEX",$b->body());
 nmeq("BEGIN_FLOW_HANDLE",$b->body());
