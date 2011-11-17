@@ -1,0 +1,3 @@
+<?php
+eq(true,true);
+

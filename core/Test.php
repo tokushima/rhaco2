@@ -158,8 +158,8 @@ class Test extends Object{
 		foreach(Lib::classes(true) as $path => $class){
 			self::verify_format($path);
 		}
-		list($entry_path,$test_path) = self::search_path();
-		foreach(array($entry_path,$test_path) as $p){
+		list($entry_path,$tests_path) = self::search_path();
+		foreach(array($entry_path,$tests_path) as $p){
 			if(is_dir($p)){
 				foreach(File::ls($p) as $f){
 					if($f->is_ext('php') && !$f->is_private()) self::verify_format($f->oname());
@@ -219,7 +219,7 @@ class Test extends Object{
 				self::$current_method = $test_method_name;
 
 				if(empty($tests['blocks'])){
-					self::$result[self::$current_file][self::$current_class][self::$current_method][$tests['line']][] = array("none");									
+					self::$result[self::$current_file][self::$current_class][self::$current_method][$tests['line']][] = array('none');									
 				}else{
 					foreach($tests['blocks'] as $test_block){
 						list($name,$block) = $test_block;
@@ -243,7 +243,7 @@ class Test extends Object{
 								Exceptions::clear();
 								if(isset($doctest['entry_name'])){
 									App::branch($pre_branch);
-								}								
+								}
 								$result = ob_get_clean();
 								if(preg_match("/(Parse|Fatal) error:.+/",$result,$match)) throw new ErrorException($match[0]);
 							}catch(Exception $e){
@@ -265,6 +265,12 @@ class Test extends Object{
 						}
 					}
 				}
+			}
+		}
+		$test_name = isset($doctest['class_name']) ? $class_path : $doctest['entry_name'];
+		if(!empty($test_name) && is_dir($d=($tests_path.'/'.str_replace('.','/',$test_name)))){
+			foreach(File::ls($d) as $f){
+				if($f->is_ext('php') && !$f->is_private() && ($block_name === null || $block_name === $f->oname())) self::verify_format($f->fullname());
 			}
 		}
 		return new self();
