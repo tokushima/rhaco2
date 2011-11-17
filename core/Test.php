@@ -67,7 +67,8 @@ class Test extends Object{
 		$result = array();
 		$result['@']['line'] = 0;
 		$result['@']['blocks'][] = array($filename,$filename,0);
-		return array('filename'=>$filename,'class_name'=>null,'entry_name'=>null,'tests'=>$result);
+		$name = (preg_match("/^.+\/tests\/(.+)\/[^\/]+\.php$/",$filename,$match)) ? $match[1] : null;
+		return array('filename'=>$filename,'type'=>3,'name'=>$name,'tests'=>$result);
 	}
 	final static private function get_entry_doctest($filename){
 		$entry = basename($filename,'.php');
@@ -88,7 +89,7 @@ class Test extends Object{
 				self::merge_setup_teardown($result);
 			}
 		}
-		return array('filename'=>$filename,'class_name'=>null,'entry_name'=>$entry,'tests'=>$result);
+		return array('filename'=>$filename,'type'=>2,'name'=>$entry,'tests'=>$result);
 	}
 	final static private function get_doctest($path){
 		$result = array();
@@ -107,7 +108,7 @@ class Test extends Object{
 		}
 		$result = array_merge($result,self::get_method_doctest($rc->getName(),'@',1,false,$class_src));
 		self::merge_setup_teardown($result);
-		return array('filename'=>$filename,'class_name'=>$class_name,'entry_name'=>null,'tests'=>$result);
+		return array('filename'=>$filename,'type'=>1,'name'=>$class_name,'tests'=>$result);
 	}
 	final static private function merge_setup_teardown(&$result){
 		if(isset($result['@']['blocks'])){
@@ -209,8 +210,8 @@ class Test extends Object{
 			}
 		}
 		self::$current_file = $doctest['filename'];
-		self::$current_class = $doctest['class_name'];
-		self::$current_entry = $doctest['entry_name'];
+		self::$current_class = ($doctest['type'] == 1) ? $doctest['name'] : null;
+		self::$current_entry = ($doctest['type'] == 2 || $doctest['type'] == 3) ? $doctest['name'] : null;
 		self::$current_map_test_file = null;
 		self::$current_method = null;
 
@@ -224,14 +225,14 @@ class Test extends Object{
 					foreach($tests['blocks'] as $test_block){
 						list($name,$block) = $test_block;
 						if($block_name === null || $block_name === $name){
-							if(isset($doctest['entry_name'])){
+							if($doctest['type'] == 2){
 								$pre_branch = App::branch();
 								App::branch(new File($doctest['filename']));
 								self::$current_map_test_file = $doctest['filename'];
 							}
 							try{
 								ob_start();
-								if(!isset($doctest['class_name']) && !isset($doctest['entry_name'])){
+								if($doctest['type'] == 3){
 									if(is_file($f=(dirname($doctest['filename']).'/__setup__.php'))) include($f);
 									include($doctest['filename']);
 									if(is_file($f=(dirname($doctest['filename']).'/__teardown__.php'))) include($f);
@@ -241,7 +242,7 @@ class Test extends Object{
 									if(isset($tests['__teardown__'])) eval($tests['__teardown__'][1]);
 								}
 								Exceptions::clear();
-								if(isset($doctest['entry_name'])){
+								if($doctest['type'] == 2){
 									App::branch($pre_branch);
 								}
 								$result = ob_get_clean();
@@ -267,10 +268,12 @@ class Test extends Object{
 				}
 			}
 		}
-		$test_name = isset($doctest['class_name']) ? $class_path : $doctest['entry_name'];
-		if(!empty($test_name) && is_dir($d=($tests_path.'/'.str_replace('.','/',$test_name)))){
-			foreach(File::ls($d) as $f){
-				if($f->is_ext('php') && !$f->is_private() && ($block_name === null || $block_name === $f->oname())) self::verify_format($f->fullname());
+		if($doctest['type'] == 1 || $doctest['type'] == 2){
+			$test_name = ($doctest['type'] == 1) ? $class_path : $doctest['name'];
+			if(!empty($test_name) && is_dir($d=($tests_path.'/'.str_replace('.','/',$test_name)))){
+				foreach(File::ls($d) as $f){
+					if($f->is_ext('php') && !$f->is_private() && ($block_name === null || $block_name === $f->oname())) self::verify_format($f->fullname());
+				}
 			}
 		}
 		return new self();
