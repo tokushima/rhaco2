@@ -111,6 +111,25 @@ class CoreApp extends Flow{
 		print(sprintf("memory_get_usage: %s Mbyte ( %s sec )\n\n",number_format((memory_get_usage() / 1024 / 1024),3),number_format((microtime(true)-$start_time),3)));
 		File::rm(dirname(dirname(__FILE__)).'/rhaco2.php');
 	}
+	/**
+	 * coreをコピーする
+	 * @param Request $req
+	 * @param string $value コピー先のファイルパス
+	 * @request void $min rhaco2_min.phpをコピーするか
+	 */
+	static public function __setup_copy_core__(Request $req,$value){
+		$bin = App::path('bin').'/'.($req->is_vars('min') ? 'rhaco2_min.php' : 'rhaco2.php');
+		if(!is_file($bin)) throw new LogicException($bin.' not found');
+		if(is_file($value)){
+			$fp = fopen($value,'r+');
+			fwrite($fp,file_get_contents($bin));
+			fclose($fp);
+			println('rewrite '.$value);
+		}else{
+			copy($bin,$value);
+			println('copy '.$value);	
+		}
+	}
 	/***
 		# __setup__
 		
