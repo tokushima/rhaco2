@@ -1078,8 +1078,11 @@ class Template extends Object{
 		*/
 	}
 	final private function rtpager($src){
+		return $this->rtpaginator($this->rtpaginator($src,'rt:pager'),'rt:paginator');
+	}
+	final private function rtpaginator($src,$rtname){
 		if(strpos($src,'rt:pager') !== false){
-			while(Tag::setof($tag,$src,'rt:pager')){
+			while(Tag::setof($tag,$src,$rtname)){
 				$param = $this->variable_string($this->parse_plain_variable($tag->in_param('param','paginator')));
 				$func = sprintf('<?php try{ ?><?php if(%s instanceof Paginator){ ?>',$param);
 				if($tag->is_value()){

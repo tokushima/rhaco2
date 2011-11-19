@@ -1,20 +1,22 @@
 <?php
-import("org.rhaco.lang.Sorter");
-module("DeveloperFilter");
+import('org.rhaco.lang.Sorter');
+import('org.rhaco.flow.module.TwitterBootstrapPagination');
+module('DeveloperFilter');
 /**
  * マップ情報、モデル情報、パッケージ情報を表示
  * @author tokushima
  */
 class Developer extends Flow{
 	protected function __init__(){
-		if($this->has_module("login_condition") || $this->has_module("silent_login_condition")) $this->login();
-		$this->vars("app_name",__CLASS__);
+		$this->add_module(new TwitterBootstrapPagination());
+		if($this->has_module('login_condition') || $this->has_module('silent_login_condition')) $this->login();
+		$this->vars('app_name',__CLASS__);
 		$info = App::info();
-		foreach($info as $k => $v) $this->vars("app_".$k,$v);
+		foreach($info as $k => $v) $this->vars('app_'.$k,$v);
 		$models = $this->search_model();
-		$this->vars("models",$models);
-		$this->vars("f",new DeveloperFilter());
-		$this->vars("is_smtp_blackhole",in_array('SmtpBlackholeDao',$models));
+		$this->vars('models',$models);
+		$this->vars('f',new DeveloperFilter());
+		$this->vars('is_smtp_blackhole',in_array('SmtpBlackholeDao',$models));
 	}
 	/**
 	 * アプリケーションのマップ一覧
@@ -23,40 +25,39 @@ class Developer extends Flow{
 		$maps = array();
 		$parse = Flow::parse_app($this->in_vars('app_filename'));
 		$package = module_package();
-		foreach($parse["apps"] as $apps){
-			if($apps["type"] == "handle"){
-				foreach($apps["maps"] as $url => $map){
-					if($map["class"] !== $package) $maps[] = $map;
+		foreach($parse['apps'] as $apps){
+			if($apps['type'] == 'handle'){
+				foreach($apps['maps'] as $url => $m){
+					if($m['class'] !== $package && $this->search_str($m['name'],$m['class'],$m['method'],$m['url'])) $maps[] = $m;
 				}
 			}
 		}
-		$order = null;
-		if($this->is_vars("order")){
-			$order = Sorter::order($this->in_vars("order"),$this->in_vars("porder"));
-			$maps = Sorter::hash($maps,$order);
-		}
-		$this->vars("porder",$order);
-		$this->vars("maps",$maps);
+		$this->vars('maps',$maps);
 	}
-	/**
-	 * installationのマッピング用
-	 */
-	public function installation(){
+	private function search_str(){
+		$query = str_replace('　',' ',trim($this->in_vars('q')));
+		if(!empty($query)){
+			$args = func_get_args();
+			foreach(explode(' ',$query) as $q){
+				if(stripos(implode(' ',$args),$q) === false) return false;
+			}
+		}
+		return true;
 	}
 	/**
 	 * libraryの一覧
 	 */
-	public function libs(){
+	public function classes(){
 		$libs = array();
 		foreach(Lib::classes() as $package => $class_name){
 			$ref = new ReflectionClass($class_name);
 			$src = $ref->getDocComment();
 			$document = trim(preg_replace("/@.+/","",preg_replace("/^[\s]*\*[\s]{0,1}/m","",str_replace(array("/"."**","*"."/"),"",$src))));
-			$todo = substr_count(File::read($ref->getFileName()),"TODO");
 			list($summary) = explode("\n",$document);
-			$libs[$package] = array($summary,$todo);
+			if($this->search_str($package,$class_name,$document)) $libs[$package] = $summary;
 		}
-		$this->vars("packages",$libs);
+		ksort($libs);
+		$this->vars('packages',$libs);
 	}
 	/**
 	 * クラスのドキュメント
@@ -70,7 +71,7 @@ class Developer extends Flow{
 		$extends = null;
 
 		$parent_class = $ref->getParentClass();
-		if($parent_class !== false && $parent_class->getName() !== "stdClass"){
+		if($parent_class !== false && $parent_class->getName() !== 'stdClass'){
 			try{
 				$extends = Lib::package_path($parent_class->getName());
 			}catch(Exception $e){
@@ -106,7 +107,7 @@ class Developer extends Flow{
 		$d = preg_replace("/^[\s]*\*[\s]{0,1}/m",'',str_replace(array('/'.'**','*'.'/'),'',$d));
 		foreach($ref->getProperties() as $prop){
 			if(!$prop->isPrivate()){
-				if(substr($prop->getName(),0,1) != "_" && !$prop->isStatic()) $properties[$prop->getName()] = array('mixed',null,null);
+				if(substr($prop->getName(),0,1) != '_' && !$prop->isStatic()) $properties[$prop->getName()] = array('mixed',null,null);
 			}
 		}
 		if(preg_match_all("/@var\s([\w_]+[\[\]\{\}]*)\s\\\$([\w_]+)(.*)/",$d,$m)){
@@ -119,13 +120,13 @@ class Developer extends Flow{
 				}
 			}
 		}
-		$this->vars("extends",$extends);
-		$this->vars("static_methods",$static_methods);
-		$this->vars("methods",$methods);
-		$this->vars("properties",$properties);
-		$this->vars("tasks",$tasks);
-		$this->vars("package",$path);
-		$this->vars("description",trim(preg_replace("/@.+/","",$document)));
+		$this->vars('extends',$extends);
+		$this->vars('static_methods',$static_methods);
+		$this->vars('methods',$methods);
+		$this->vars('properties',$properties);
+		$this->vars('tasks',$tasks);
+		$this->vars('package',$path);
+		$this->vars('description',trim(preg_replace("/@.+/",'',$document)));
 	}
 	
 	/**
@@ -214,15 +215,15 @@ class Developer extends Flow{
 				}
 			}
 		}
-		$this->vars("package",$path);
-		$this->vars("method_name",$method_name);
-		$this->vars("params",$params);
-		$this->vars("request",$request);
-		$this->vars("context",$context);
-		$this->vars("args",$args);
-		$this->vars("return",$return);
-		$this->vars("description",trim(preg_replace("/@.+/","",$document)));
-		$this->vars("is_post",(strpos($src,'$this->is_post()') !== false));
+		$this->vars('package',$path);
+		$this->vars('method_name',$method_name);
+		$this->vars('params',$params);
+		$this->vars('request',$request);
+		$this->vars('context',$context);
+		$this->vars('args',$args);
+		$this->vars('return',$return);
+		$this->vars('description',trim(preg_replace("/@.+/",'',$document)));
+		$this->vars('is_post',(strpos($src,'$this->is_post()') !== false));
 	}
 	private function search_model(){
 		$models = array();
@@ -230,15 +231,15 @@ class Developer extends Flow{
 			if(!class_exists($class) && !interface_exists($class)) Lib::import($path);
 		}
 		foreach(get_declared_classes() as $class){
-			if(is_class($class) && is_subclass_of($class,"Dao")) $models[] = $class;
+			if(is_class($class) && is_subclass_of($class,'Dao')) $models[] = $class;
 		}
 		sort($models);
 		return $models;
 	}
 	private function get_model($name){
 		$args = null;
-		if(is_array($this->in_vars("primary"))){
-			foreach($this->in_vars("primary") as $k => $v) $args .= $k."=".$v.",";
+		if(is_array($this->in_vars('primary'))){
+			foreach($this->in_vars('primary') as $k => $v) $args .= $k.'='.$v.',';
 		}
 		return new $name($args);
 	}
@@ -260,13 +261,13 @@ class Developer extends Flow{
 	 */
 	public function do_find($name){
 		$class = $this->get_model($name);
-		$order = Sorter::order($this->in_vars("order"),$this->in_vars("porder"));
-		$paginator = new Paginator(20,$this->in_vars("page"));
-		$this->vars("query",$this->in_vars("query"));
-		$this->vars("object_list",C($class)->find_all(Q::match($this->in_vars("query")),$paginator,Q::select_order($order,$this->in_vars("porder"))));
-		$this->vars("paginator",$paginator->cp(array("query"=>$this->in_vars("query"),"order"=>$order)));
-		$this->vars("model",$class);
-		$this->vars("model_name",$name);
+		$order = Sorter::order($this->in_vars('order'),$this->in_vars('porder'));
+		$paginator = new Paginator(20,$this->in_vars('page'));
+		$this->vars('query',$this->in_vars('q'));
+		$this->vars('object_list',C($class)->find_all(Q::match($this->in_vars('q')),$paginator,Q::select_order($order,$this->in_vars('porder'))));
+		$this->vars('paginator',$paginator->cp(array('q'=>$this->in_vars('q'),'order'=>$order)));
+		$this->vars('model',$class);
+		$this->vars('model_name',$name);
 	}
 	/**
 	 * 詳細
@@ -274,9 +275,9 @@ class Developer extends Flow{
 	 */
 	public function do_detail($name){
 		$class = $this->get_model($name);
-		$this->vars("object",$class->sync());
-		$this->vars("model",$class);
-		$this->vars("model_name",$name);
+		$this->vars('object',$class->sync());
+		$this->vars('model',$class);
+		$this->vars('model_name',$name);
 	}
 	/**
 	 * 削除
@@ -290,7 +291,7 @@ class Developer extends Flow{
 			Dao::end_write();
 			$this->redirect_referer();
 		}
-		$this->redirect_method("do_find",$name);
+		$this->redirect_method('do_find',$name);
 	}
 	/**
 	 * 更新
@@ -307,10 +308,10 @@ class Developer extends Flow{
 					$obj->save();
 				Dao::end_write();
 
-				if($this->is_vars("save_and_add_another")){
-					$this->redirect_method("do_create",$name);
+				if($this->is_vars('save_and_add_another')){
+					$this->redirect_method('do_create',$name);
 				}else{
-					$this->redirect_method("do_find",$name);
+					$this->redirect_method('do_find',$name);
 				}
 			}catch(Exception $e){
 				Exceptions::add($e);
@@ -319,8 +320,8 @@ class Developer extends Flow{
 			$obj = $class->sync();
 			$this->cp($obj);
 		}
-		$this->vars("model",$class);
-		$this->vars("model_name",$name);
+		$this->vars('model',$class);
+		$this->vars('model_name',$name);
 	}
 	/**
 	 * 作成
@@ -334,10 +335,10 @@ class Developer extends Flow{
 				$class->cp($this->vars())->save();
 				Dao::end_write();
 
-				if($this->is_vars("save_and_add_another")){
-					$this->redirect_method("do_create",$name);
+				if($this->is_vars('save_and_add_another')){
+					$this->redirect_method('do_create',$name);
 				}else{
-					$this->redirect_method("do_find",$name);
+					$this->redirect_method('do_find',$name);
 				}
 			}catch(Exception $e){
 				Exceptions::add($e);
@@ -345,18 +346,69 @@ class Developer extends Flow{
 		}else{
 			$this->cp($class);
 		}
-		$this->vars("model",$class);
-		$this->vars("model_name",$name);
+		$this->vars('model',$class);
+		$this->vars('model_name',$name);
+	}
+	public function conf_list(){
+		$consts = array();
+		foreach(array_keys(Lib::classes(true,true)) as $package){
+			$package_name = preg_replace("/^.+\.(\w+)$/","\\1",$package);
+			$php = File::absolute(Lib::path(),str_replace('.','/',$package)).'.php';
+			if(!is_file($php)) $php = File::absolute(Lib::path(),str_replace('.','/',$package).'/'.$package_name).'.php';
+			if(!is_file($php)) $php = File::absolute(Lib::vendors_path(),str_replace('.','/',$package)).'.php';
+			if(!is_file($php)) $php = File::absolute(Lib::vendors_path(),str_replace('.','/',$package).'/'.$package_name).'.php';
+
+			$files = array();
+			if(is_file($php)){
+				if(strpos($php,$package_name.'/'.$package_name.'.php') !== false){
+					foreach(File::ls($php) as $file){
+						if($file->is_ext('php')) $files[] = $file->fullname();
+					}
+				}else{
+					$files[] = $php;					
+				}
+			}
+			$docs = array();
+			foreach($files as $file){
+				$class_src = str_replace(array("\r\n","\r"),"\n",File::read($file));
+
+				if(preg_match_all('/module_const\((["\'])(.+?)\\1/',$class_src,$match)){
+					foreach($match[2] as $name) $consts[$package.'@'.trim($name)] = array('string',null);
+				}
+				if(preg_match_all('/module_const_array\((["\'])(.+?)\\1/',$class_src,$match)){
+					foreach($match[2] as $name) $consts[$package.'@'.trim($name)] = array('mixed[]',null);
+				}
+				if(preg_match_all("/@const\s+([^\s]+)\s+\\$(\w+)(.*)/",$class_src,$match)){
+					foreach($match[0] as $k => $v) $docs[$package.'@'.trim($match[2][$k])] = array($match[1][$k],trim($match[3][$k]));
+				}
+				if(preg_match_all("/@const\s+\\$(\w+)(.*)/",$class_src,$match)){
+					foreach($match[0] as $k => $v) $docs[$package.'@'.trim($match[1][$k])] = array('string',trim($match[2][$k]));
+				}
+			}
+			foreach($docs as $k => $v){
+				if(isset($consts[$k])) $consts[$k] = $docs[$k];
+			}
+		}
+		$list = array();
+		foreach($consts as $n => $conf){
+			$obj = new Object();
+			list($obj->class,$obj->name) = explode('@',$n);
+			$obj->type = $conf[0];
+			$obj->summary = $conf[1];
+			$obj->exists = App::defined($n);
+			if($this->search_str($obj->class,$obj->name,$obj->summary)) $list[$n] = $obj;
+		}
+		$this->vars('object_list',$list);
 	}
 	/**
 	 * メールの一覧
 	 */
 	public function mail_list(){
-		$paginator = new Paginator(20,$this->in_vars("page"));
+		$paginator = new Paginator(20,$this->in_vars('page'));
 		$order = $this->in_vars('order','-id');
-		$this->vars("query",$this->in_vars("query"));
-		$this->vars("object_list",C(SmtpBlackholeDao)->find_all(Q::match($this->in_vars("query")),$paginator,Q::select_order($order,$this->in_vars("porder"))));
-		$this->vars("paginator",$paginator->cp(array("query"=>$this->in_vars("query"),"order"=>$order)));
+		$this->vars('query',$this->in_vars('query'));
+		$this->vars('object_list',C(SmtpBlackholeDao)->find_all(Q::match($this->in_vars('query')),$paginator,Q::select_order($order,$this->in_vars('porder'))));
+		$this->vars('paginator',$paginator->cp(array('query'=>$this->in_vars('query'),'order'=>$order)));
 	}
 	/**
 	 * メールの詳細

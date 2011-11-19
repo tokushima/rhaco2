@@ -1,5 +1,10 @@
 <?php
 class DeveloperFilter extends Templf{
+	public function package_name($p){
+		$p = str_replace(array('/','\\'),array('.','.'),$p);
+		if(substr($p,0,1) == '.') $p = substr($p,1);
+		return $p;
+	}
 	public function type($class){
 		if(preg_match("/[A-Z]/",$class[0])){
 			switch(substr($class,-2)){
@@ -16,8 +21,8 @@ class DeveloperFilter extends Templf{
 	 * @param string $prop_name
 	 * @param string $ac
 	 */
-	public function acr(Dao $obj,$prop_name,$ac){
-		return $obj->{$ac."_".$prop_name}();
+	public function acr(Dao $obj,$prop_name,$ac='fm'){
+		return $obj->{$ac.'_'.$prop_name}();
 	}
 	/**
 	 * プロパティ一覧
@@ -116,5 +121,8 @@ class DeveloperFilter extends Templf{
 		$value = preg_replace("/!!!(.+?)!!!/ms","<span class=\"notice\">\\1</span>",$value);
 		$value = str_replace("\t","&nbsp;&nbsp;",$value);
 		return $value;
+	}
+	public function htmlspecialchars($src){
+		return htmlspecialchars($src);
 	}
 }
