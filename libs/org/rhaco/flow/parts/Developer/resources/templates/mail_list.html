@@ -14,7 +14,7 @@
 
 <rt:block name="content">
 
-<table class="list" rt:param="object_list" rt:var="obj">
+<table class="list" rt:param="object_list" rt:var="obj" class="bordered-table zebra-striped">
 <thead>
 <tr>
 	<th>create</th>
@@ -24,8 +24,8 @@
 </thead>
 <tbody>
 <tr>
-	<td>{$obj.fm_create_date()}</td>
-	<td>{$obj.fm_to()}</td>
+	<td valign="top">{$obj.fm_create_date()}</td>
+	<td>{$t.html($obj.fm_to())}</td>
 	<td><a href="{$t.package_method_url('mail_detail',$obj.id())}">{$t.html($obj.fm_subject())}</a></td>
 </tr>
 </tbody>
