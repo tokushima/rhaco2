@@ -9,12 +9,10 @@ class CoreApp extends Flow{
 	 * @param string $value 書き出すフォルダ
 	 */
 	static public function __setup_export_core__(Request $req,$value){
-		$outpath = (empty($value)) ? dirname(dirname(dirname(__FILE__))).'/bin' : $value;
-		$jump_php_date = File::absolute($outpath,'rhaco2_'.(date('Ymd')).'.php');
-		$jump_php_min_date = File::absolute($outpath,'rhaco2_'.(date('Ymd')).'_min.php');
-		
+		$outpath = (empty($value)) ? dirname(dirname(dirname(__FILE__))).'/bin' : $value;		
 		$jump_php = File::absolute($outpath,'rhaco2.php');
-		$jump_php_min = File::absolute($outpath,'rhaco2_min.php');		
+		$jump_php_min = File::absolute($outpath,'rhaco2_min.php');
+		$jump_php_debug = File::absolute($outpath,'rhaco2_debug.tgz');
 		
 		$r = new ReflectionClass('Object');
 		$base = dirname($r->getFilename()).'/';
@@ -50,7 +48,7 @@ class CoreApp extends Flow{
 		File::copy($base.'__tfuncs__.php',$debug_dir.'/__tfuncs__.php');
 
 		File::write($debug_dir.'/rhaco2.php','<?php'."\n".implode("\n",$include_files)."\n?>".file_get_contents($base.'jump.php'));
-		File::tgz(File::absolute($outpath,'rhaco2_'.(date('Ymd')).'_debug.tgz'),$debug_dir);
+		File::tgz($jump_php_debug,$debug_dir);
 		File::rm($debug_dir);
 
 		File::append($jump_php,self::trim_src(file_get_contents($base.'jump.php'),false)."\n");
@@ -62,13 +60,10 @@ class CoreApp extends Flow{
 		while(preg_match("/\n[\t\n]*\n/m",$src)) $src = preg_replace("/\n[\t\n]*\n/sm","\n",$src);
 		File::write($jump_php_min,$src);
 		
-		File::copy($jump_php,$jump_php_date);
-		File::copy($jump_php_min,$jump_php_min_date);
 		print('writen:'.PHP_EOL);
 		print(' '.$jump_php.PHP_EOL);
 		print(' '.$jump_php_min.PHP_EOL);
-		print(' '.$jump_php_date.PHP_EOL);
-		print(' '.$jump_php_min_date.PHP_EOL);
+		print(' '.$jump_php_debug.PHP_EOL);
 	}
 	static private function trim_src($src,$trim){
 		$src = str_replace("\n<?php",'',"\n".$src);
