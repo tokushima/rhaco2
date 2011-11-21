@@ -1,4 +1,4 @@
-<?php require dirname(__FILE__)."/rhaco2_core.php"; app(); ?>
+<?php require dirname(__FILE__)."/rhaco2.php"; app(); ?>
 <app>
 	<handler>
 		<module class="test.flow.module.CoreTestAddModuleRaise" />

@@ -116,7 +116,7 @@ class CoreApp extends Flow{
 		$bin = App::path('bin').'/'.($req->is_vars('min') ? 'rhaco2_min.php' : 'rhaco2.php');
 		if(!is_file($bin)) throw new LogicException($bin.' not found');
 		if(is_file($value)){
-			$fp = fopen($value,'r+');
+			$fp = fopen($value,'w+');
 			fwrite($fp,file_get_contents($bin));
 			fclose($fp);
 			println('rewrite '.$value);
