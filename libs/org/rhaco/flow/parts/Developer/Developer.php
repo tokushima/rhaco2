@@ -60,6 +60,17 @@ class Developer extends Flow{
 		$this->vars('packages',$libs);
 	}
 	/**
+	 * クラスのソース表示
+	 * @param string $class
+	 */
+	public function class_src($class){
+		$this->class_info($class);
+		
+		$class = import($class);
+		$ref = new ReflectionClass($class);
+		$this->vars('class_src',file_get_contents($ref->getFileName()));
+	}
+	/**
 	 * クラスのドキュメント
 	 * @param string $path
 	 */
