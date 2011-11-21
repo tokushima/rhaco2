@@ -1,4 +1,4 @@
-<?php require dirname(__FILE__)."/rhaco2_core.php"; app(); ?>
+<?php require dirname(__FILE__)."/rhaco2.php"; app(); ?>
 <app nomatch_redirect="/">
 	<handler>
 		<map url="" name="A" class="test.CoreTestA" method="index" template="login/index.html" />

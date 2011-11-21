@@ -1,4 +1,4 @@
-<?php require dirname(__FILE__)."/rhaco2_core.php"; app(); ?>
+<?php require dirname(__FILE__)."/rhaco2.php"; app(); ?>
 <app>
 	<handler error_template="handler_error.html">
 		<var name="abc" value="ABC" />

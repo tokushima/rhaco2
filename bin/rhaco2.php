@@ -1,6 +1,6 @@
 <?php
 /**
- * @version 20111120
+ * @version 20111121
  */
 /**
  * アプリケーション定義
@@ -7827,17 +7827,14 @@ class Setup extends Object{
 		}
 		$loaded = array();
 		foreach($packages as $p){
+			$realpath = File::path_slash(Lib::path(),null,true).str_replace('.','/',$p);
+			if(is_file($f=($realpath.'.php'))) File::rm($f);
+			if(is_file($f=($realpath.'/'.preg_replace("/^.+\/([^\/]+)$/","\\1",$realpath).'.php'))) File::rm(dirname($f));
 			try{
-				$realpath = File::path_slash(Lib::path(),null,true).str_replace('.','/',$p);
-				if(!is_file($realpath.'.php') && !is_file($realpath.'/'.preg_replace("/^.+\/([^\/]+)$/","\\1",$realpath).'.php')) Lib::import($p);
-				println('exists '.$p);
-			}catch(InvalidArgumentException $e){
-				try{
-					$loaded = array_merge($loaded,Lib::download($p));
-				}catch(LogicException $e){
-					self::println($e->getMessage(),false);
-					exit;
-				}
+				$loaded = array_merge($loaded,Lib::download($p));
+			}catch(LogicException $e){
+				self::println($e->getMessage(),false);
+				exit;
 			}
 		}
 		foreach($loaded as $p) self::println('imported '.$p,true);
