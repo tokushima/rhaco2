@@ -7828,13 +7828,16 @@ class Setup extends Object{
 		$loaded = array();
 		foreach($packages as $p){
 			$realpath = File::path_slash(Lib::path(),null,true).str_replace('.','/',$p);
-			if(is_file($f=($realpath.'.php'))) File::rm($f);
-			if(is_file($f=($realpath.'/'.preg_replace("/^.+\/([^\/]+)$/","\\1",$realpath).'.php'))) File::rm(dirname($f));
-			try{
-				$loaded = array_merge($loaded,Lib::download($p));
-			}catch(LogicException $e){
-				self::println($e->getMessage(),false);
-				exit;
+			if(!is_file($f=($realpath.'.php')) && !is_file($f=($realpath.'/'.preg_replace("/^.+\/([^\/]+)$/","\\1",$realpath).'.php'))){
+				try{
+					$realpath = File::path_slash(Lib::vendors_path(),null,true).str_replace('.','/',$p);
+					if(is_file($f=($realpath.'.php'))) File::rm($f);
+					if(is_file($f=($realpath.'/'.preg_replace("/^.+\/([^\/]+)$/","\\1",$realpath).'.php'))) File::rm(dirname($f));
+					$loaded = array_merge($loaded,Lib::download($p));
+				}catch(LogicException $e){
+					self::println($e->getMessage(),false);
+					exit;
+				}
 			}
 		}
 		foreach($loaded as $p) self::println('imported '.$p,true);
