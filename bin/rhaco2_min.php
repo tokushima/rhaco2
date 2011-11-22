@@ -1,6 +1,6 @@
 <?php
 /**
- * @version 20111121
+ * @version 20111123
  */
 class App{
 	static private $def = array();
