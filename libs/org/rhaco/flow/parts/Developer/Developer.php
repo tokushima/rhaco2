@@ -28,7 +28,7 @@ class Developer extends Flow{
 		foreach($parse['apps'] as $apps){
 			if($apps['type'] == 'handle'){
 				foreach($apps['maps'] as $url => $m){
-					if($m['class'] !== $package && $this->search_str($m['name'],$m['class'],$m['method'],$m['url'])) $maps[] = $m;
+					if($m['class'] !== $package && $this->search_str($m['name'],$m['class'],$m['method'],$m['url'],$m['template'])) $maps[] = $m;
 				}
 			}
 		}
