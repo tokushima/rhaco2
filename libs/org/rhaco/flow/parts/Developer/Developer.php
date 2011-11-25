@@ -51,10 +51,17 @@ class Developer extends Flow{
 		$libs = array();
 		foreach(Lib::classes() as $package => $class_name){
 			$ref = new ReflectionClass($class_name);
-			$src = $ref->getDocComment();
-			$document = trim(preg_replace("/@.+/","",preg_replace("/^[\s]*\*[\s]{0,1}/m","",str_replace(array("/"."**","*"."/"),"",$src))));
+			$doc = $ref->getDocComment();
+			$document = trim(preg_replace("/@.+/","",preg_replace("/^[\s]*\*[\s]{0,1}/m","",str_replace(array("/"."**","*"."/"),'',$doc))));
 			list($summary) = explode("\n",$document);
-			if($this->search_str($package,$class_name,$document)) $libs[$package] = $summary;
+			if($this->search_str($package,$class_name,$document)){
+				$src = file_get_contents($ref->getFileName());
+
+				$c = new Object();
+				$c->summary = $summary;
+				$c->usemail = (strpos($src,'org.rhaco.net.mail.Mail') !== false);
+				$libs[$package] = $c;
+			}
 		}
 		ksort($libs);
 		$this->vars('packages',$libs);
