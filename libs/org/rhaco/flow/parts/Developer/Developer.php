@@ -28,7 +28,19 @@ class Developer extends Flow{
 		foreach($parse['apps'] as $apps){
 			if($apps['type'] == 'handle'){
 				foreach($apps['maps'] as $url => $m){
-					if($m['class'] !== $package && $this->search_str($m['name'],$m['class'],$m['method'],$m['url'],$m['template'])) $maps[] = $m;
+					if($m['class'] !== $package && $this->search_str($m['name'],$m['class'],$m['method'],$m['url'],$m['template'])){
+						$m['summary'] = '';
+						if(isset($m['class']) && isset($m['method'])){
+							try{
+								$cr = new \ReflectionClass(import($m['class']));
+								$mr = $cr->getMethod($m['method']);
+								list($m['summary']) = explode("\n",trim(preg_replace("/@.+/","",preg_replace("/^[\s]*\*[\s]{0,1}/m","",str_replace(array("/"."**","*"."/"),"",$mr->getDocComment())))));
+							}catch(ReflectionException $e){
+								$m['summary'] = $e->getMessage();
+							}
+						}
+						$maps[$url] = $m;						
+					}
 				}
 			}
 		}
