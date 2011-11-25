@@ -436,9 +436,9 @@ class Developer extends Flow{
 	public function mail_list(){
 		$paginator = new Paginator(20,$this->in_vars('page'));
 		$order = $this->in_vars('order','-id');
-		$this->vars('query',$this->in_vars('query'));
-		$this->vars('object_list',C(SmtpBlackholeDao)->find_all(Q::match($this->in_vars('query')),$paginator,Q::select_order($order,$this->in_vars('porder'))));
-		$this->vars('paginator',$paginator->cp(array('query'=>$this->in_vars('query'),'order'=>$order)));
+		$this->vars('q',$this->in_vars('q'));
+		$this->vars('object_list',C(SmtpBlackholeDao)->find_all(Q::match($this->in_vars('q')),$paginator,Q::select_order($order,$this->in_vars('porder'))));
+		$this->vars('paginator',$paginator->cp(array('q'=>$this->in_vars('q'),'order'=>$order)));
 	}
 	/**
 	 * メールの詳細
