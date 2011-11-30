@@ -182,6 +182,12 @@
 		<map name="template_super_a" url="extendsA" template="template_super.html" />
 		<map name="template_super_b" url="extendsB" template="template_super.html" template_super="template_super_x.html" />
 	</handler>
+	
+	<handler url="upload">
+		<map name="upload_multi" url="upload_multi" class="test.SampleFlow" method="upload_multi" />
+		<map name="upload_value" url="upload_value" class="test.SampleFlow" method="upload_value" />
+		<map name="upload_file" url="upload_file" class="test.SampleFlow" method="upload_file" />
+	</handler>
 </app>
 
 <!---
