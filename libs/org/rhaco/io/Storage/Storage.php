@@ -55,9 +55,6 @@ class Storage extends Object{
 	 * @throws RuntimeException
 	 */
 	public function get_select_path($node,$type='mixed'){
-		$nodes = module_const_array('save_nodes');
-		if(empty($nodes)) throw new RuntimeException('ノードが設定されていません');
-		if(!in_array($node,$nodes)) throw new RuntimeException('指定のノードが設定されていません `'.$node.'`');		
 		$service = module_const("service_name","new_service");
 		$dir = $node.'/'.$service.'/'.$type;
 		File::mkdir($this->get_path($dir));
