@@ -213,6 +213,13 @@ class Tag extends Object{
 			$tag->close_empty(false);
 			eq("<textarea></textarea>",$tag->get());
 		 */
+		/***
+			$tag = new self("textarea");
+			eq("<textarea />",$tag->get());
+
+			$tag = new self("textarea","\n\n\nhoge\n\n");
+			eq("<textarea>\n\n\nhoge\n\n</textarea>",$tag->get());
+		 */
 	}
 	/**
 	 * xmlとし出力する
