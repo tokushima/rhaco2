@@ -1,6 +1,6 @@
 <?php
 /**
- * @version 20111123
+ * @version 20111206
  */
 /**
  * アプリケーション定義
@@ -8587,6 +8587,15 @@ class Test extends Object{
 		if(self::$each_flush) print(new Test());
 		return $result;
 	}
+	/**
+	 * メッセージを登録
+	 * @param string $msg メッセージ
+	 * @param int $line 行番号
+	 * @param string $file ファイル名
+	 */
+	final public static function notice($msg,$line,$file=null){
+		self::$result[(empty(self::$current_file) ? $file : self::$current_file)][self::$current_class][self::$current_method][$line][] = array('notice',$msg,$file,$line);
+	}
 	static private function fcolor($msg,$color="30"){
 		return (php_sapi_name() == 'cli' && substr(PHP_OS,0,3) != 'WIN') ? "\033[".$color."m".$msg."\033[0m" : $msg;
 	}
@@ -8642,11 +8651,16 @@ class Test extends Object{
 									break;
 								case 4:
 									$fail++;
-									if(substr(self::$exec_type,-4,1) != "1") break;
-									if(!$print_head) $print_head = $this->head($result,$class,$file);
-									$result .= "[".$line."]".$method.": ".self::fcolor("exception","1;31")."\n";
+									if(!$print_head){
+										$result .= "\n";
+										$result .= (empty($class) ? "*****" : str_replace("\\",'.',(substr($class,0,1) == "\\") ? substr($class,1) : $class))." [ ".$file." ]\n";
+										$result .= str_repeat("-",80)."\n";
+										$print_head = true;
+									}
+									$color = ($l[0] == 'exception') ? 31 : 34;
+									$result .= "[".$line."]".$method.": ".self::fcolor($l[0],"1;".$color)."\n";
 									$result .= $tab.str_repeat("=",70)."\n";
-									$result .= self::fcolor($tab.$l[1]."\n\n".$tab.$l[2].":".$l[3],"31");
+									$result .= self::fcolor($tab.$l[1]."\n\n".$tab.$l[2].":".$l[3],$color);
 									$result .= "\n".$tab.str_repeat("=",70)."\n";
 									break;
 							}
@@ -9054,11 +9068,18 @@ if(!function_exists('success')){
 if(!function_exists('fail')){
 	/**
 	 * 失敗
-	 * @return boolean
 	 */
-	function fail(){
+	function fail($msg=null){
+		throw new LogicException('Test fail: '.$msg);
+	}
+}
+if(!function_exists('notice')){
+	/**
+	 * メッセージ
+	 */
+	function notice($msg=null){
 		list($debug) = debug_backtrace(false);
-		return Test::equals(false,true,true,$debug["line"],$debug["file"]);
+		\org\rhaco\Test::notice((($msg instanceof \Exception) ? $msg->getMessage() : (string)$msg),$debug['line'],$debug['file']);
 	}
 }
 if(!function_exists('meq')){
