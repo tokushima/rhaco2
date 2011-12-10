@@ -24,11 +24,18 @@ if(!function_exists('success')){
 if(!function_exists('fail')){
 	/**
 	 * 失敗
-	 * @return boolean
 	 */
-	function fail(){
+	function fail($msg=null){
+		throw new LogicException('Test fail: '.$msg);
+	}
+}
+if(!function_exists('notice')){
+	/**
+	 * メッセージ
+	 */
+	function notice($msg=null){
 		list($debug) = debug_backtrace(false);
-		return Test::equals(false,true,true,$debug["line"],$debug["file"]);
+		\org\rhaco\Test::notice((($msg instanceof \Exception) ? $msg->getMessage() : (string)$msg),$debug['line'],$debug['file']);
 	}
 }
 if(!function_exists('meq')){
