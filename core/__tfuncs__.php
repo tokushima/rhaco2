@@ -35,7 +35,7 @@ if(!function_exists('notice')){
 	 */
 	function notice($msg=null){
 		list($debug) = debug_backtrace(false);
-		\org\rhaco\Test::notice((($msg instanceof \Exception) ? $msg->getMessage() : (string)$msg),$debug['line'],$debug['file']);
+		Test::notice((($msg instanceof \Exception) ? $msg->getMessage()."\n\n".$msg->getTraceAsString() : (string)$msg),$debug['line'],$debug['file']);
 	}
 }
 if(!function_exists('meq')){

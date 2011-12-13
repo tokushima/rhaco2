@@ -1,6 +1,6 @@
 <?php
 /**
- * @version 20111206
+ * @version 20111212
  */
 /**
  * アプリケーション定義
@@ -2566,6 +2566,7 @@ class Tag extends Object{
 	public function get($encoding=null){
 		if(!$this->is_name()) throw new LogicException("undef name");
 		return ((empty($encoding)) ? '' : '<?xml version="1.0" encoding="'.$encoding.'" ?>'."\n").$this->start().$this->value().$this->end();
+		
 		
 		
 	}
@@ -9079,7 +9080,7 @@ if(!function_exists('notice')){
 	 */
 	function notice($msg=null){
 		list($debug) = debug_backtrace(false);
-		\org\rhaco\Test::notice((($msg instanceof \Exception) ? $msg->getMessage() : (string)$msg),$debug['line'],$debug['file']);
+		Test::notice((($msg instanceof \Exception) ? $msg->getMessage()."\n\n".$msg->getTraceAsString() : (string)$msg),$debug['line'],$debug['file']);
 	}
 }
 if(!function_exists('meq')){
