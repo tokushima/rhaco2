@@ -490,5 +490,41 @@ class Templf{
 			$t = new self();
 			eq("hoge",$t->trans("hoge"));
 		 */
-	}	
+	}
+	/**
+	 * aがbより小さい
+	 * @param integer $a
+	 * @param integer $b
+	 * @return boolean
+	 */
+	public function lt($a,$b){
+		return ($a < $b);
+	}
+	/**
+	 * aがbより小さいか等しい
+	 * @param integer $a
+	 * @param integer $b
+	 * @return boolean
+	 */
+	public function lte($a,$b){
+		return ($a <= $b);
+	}
+	/**
+	 * aがbより大きい
+	 * @param integer $a
+	 * @param integer $b
+	 * @return boolean
+	 */
+	public function gt($a,$b){
+		return ($a > $b);
+	}
+	/**
+	 * aがbより大きいか等しい
+	 * @param integer $a
+	 * @param integer $b
+	 * @return boolean
+	 */
+	public function gte($a,$b){
+		return ($a >= $b);
+	}
 }
