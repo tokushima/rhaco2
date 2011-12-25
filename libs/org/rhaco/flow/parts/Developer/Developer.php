@@ -13,7 +13,7 @@ class Developer extends Flow{
 		$this->vars('app_name',__CLASS__);
 		$info = App::info();
 		foreach($info as $k => $v) $this->vars('app_'.$k,$v);
-		$models = $this->search_model();
+		$models = $this->get_model_list();
 		$this->vars('models',$models);
 		$this->vars('f',new DeveloperFilter());
 		$this->vars('is_smtp_blackhole',in_array('SmtpBlackholeDao',$models));
@@ -255,7 +255,7 @@ class Developer extends Flow{
 		$this->vars('description',trim(preg_replace("/@.+/",'',$document)));
 		$this->vars('is_post',(strpos($src,'$this->is_post()') !== false));
 	}
-	private function search_model(){
+	private function get_model_list(){
 		$models = array();
 		foreach(get_classes(true) as $path => $class){
 			if(!class_exists($class) && !interface_exists($class)) Lib::import($path);
@@ -447,5 +447,22 @@ class Developer extends Flow{
 	public function mail_detail($id){
 		$model = C(SmtpBlackholeDao)->find_get(Q::eq('id',$id));
 		$this->vars('obj',$model);
+	}
+	/**
+	 * Daoモデルの一覧
+	 */
+	public function model_list(){
+		$model_list = $this->get_model_list();
+		$list = array();
+		foreach($model_list as $m){
+			if($this->search_str($m)){
+				$r = new ReflectionClass("\\".str_replace('.',"\\",$m));
+				$class_doc = $r->getDocComment();
+				$document = trim(preg_replace("/@.+/",'',preg_replace("/^[\s]*\*[\s]{0,1}/m",'',str_replace(array('/'.'**','*'.'/'),'',$class_doc))));
+				list($summary) = explode("\n",$document);
+				$list[$m] = $summary;
+			}
+		}		
+		$this->vars('dao_models',$list);
 	}
 }

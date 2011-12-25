@@ -1,6 +1,6 @@
 <?php
 /**
- * @version 20111212
+ * @version 20111220
  */
 class App{
 	static private $def = array();
@@ -3058,7 +3058,19 @@ class Templf{
 	public function trans($message){
 		$args = func_get_args();
 		return call_user_func_array(array('Gettext','trans'),$args);
-	}	
+	}
+	public function lt($a,$b){
+		return ($a < $b);
+	}
+	public function lte($a,$b){
+		return ($a <= $b);
+	}
+	public function gt($a,$b){
+		return ($a > $b);
+	}
+	public function gte($a,$b){
+		return ($a >= $b);
+	}
 }
 class Text{
 	static private $detect_order = "JIS,UTF-8,eucjp-win,sjis-win,EUC-JP,SJIS";
@@ -5145,7 +5157,7 @@ class Http extends Object{
 									.$v[1]->get()
 									."\r\n";
 					}
-					$raw = "--".$boundary."\r\n".implode("--".$boundary."\r\n",$raws)."\r\n--".$boundary."--\r\n"."\r\n";
+					$raw = "--".$boundary."\r\n".implode("--".$boundary."\r\n",$raws)."--".$boundary."--\r\n"."\r\n";
 				}
 			}
 		}

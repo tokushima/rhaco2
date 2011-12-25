@@ -1,6 +1,6 @@
 <?php
 /**
- * @version 20111212
+ * @version 20111220
  */
 /**
  * アプリケーション定義
@@ -4209,7 +4209,43 @@ class Templf{
 		$args = func_get_args();
 		return call_user_func_array(array('Gettext','trans'),$args);
 		
-	}	
+	}
+	/**
+	 * aがbより小さい
+	 * @param integer $a
+	 * @param integer $b
+	 * @return boolean
+	 */
+	public function lt($a,$b){
+		return ($a < $b);
+	}
+	/**
+	 * aがbより小さいか等しい
+	 * @param integer $a
+	 * @param integer $b
+	 * @return boolean
+	 */
+	public function lte($a,$b){
+		return ($a <= $b);
+	}
+	/**
+	 * aがbより大きい
+	 * @param integer $a
+	 * @param integer $b
+	 * @return boolean
+	 */
+	public function gt($a,$b){
+		return ($a > $b);
+	}
+	/**
+	 * aがbより大きいか等しい
+	 * @param integer $a
+	 * @param integer $b
+	 * @return boolean
+	 */
+	public function gte($a,$b){
+		return ($a >= $b);
+	}
 }
 /**
  * テキスト処理
@@ -7075,7 +7111,7 @@ class Http extends Object{
 									.$v[1]->get()
 									."\r\n";
 					}
-					$raw = "--".$boundary."\r\n".implode("--".$boundary."\r\n",$raws)."\r\n--".$boundary."--\r\n"."\r\n";
+					$raw = "--".$boundary."\r\n".implode("--".$boundary."\r\n",$raws)."--".$boundary."--\r\n"."\r\n";
 				}
 			}
 		}
