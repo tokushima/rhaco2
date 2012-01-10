@@ -1843,6 +1843,19 @@ abstract class Dao extends Object{
 				$i++;
 			}
 			eq(1,$i);
+			$i = 0;
+			$q=new Q();
+			$q->add(Q::neq("value","abc"));
+			$q->add(Q::ob(
+						Q::b(Q::eq("order",2)),
+						Q::b(Q::eq("order",4))
+					);
+			$q->add(Q::neq("value","aaa"));
+			foreach(C($TestDaoFind)->find($q) as $obj){
+				$i++;
+			}
+			eq(1,$i);
+			
 
 			$list = array("abc","def","ghi","jkl","aaa");
 			$i = 0;
@@ -2303,6 +2316,21 @@ abstract class Dao extends Object{
 					Q::b(Q::eq("no",1),Q::eq("value","B"))
 					,Q::b(Q::eq("no",1),Q::eq("value","A"))
 				)
+			) as $o){
+				$result[] = $o;
+			}
+			eq(2,sizeof($result));
+			eq(2,$paginator->total());
+			$result = array();
+			$paginator = new Paginator();
+			$q = new Query();
+			$q->add(Q::ob(
+					Q::b(Q::eq("no",1),Q::eq("value","B"))
+					,Q::b(Q::eq("no",1),Q::eq("value","A"))
+			));
+			foreach(C($TestDaoFindOr)->find(
+				$paginator
+				,$q
 			) as $o){
 				$result[] = $o;
 			}
