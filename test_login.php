@@ -11,7 +11,7 @@
 		<map url="login" name="login" method="do_login" template="login/login.html">
 			<arg name="login_redirect" value="A" />
 		</map>
-		<map url="logout" method="do_logout">
+		<map url="logout" name="logout" method="do_logout">
 			<arg name="logout_redirect" value="login" />
 		</map>
 		<module class="test.CoreTestL" />
@@ -117,4 +117,27 @@ meq("AFTER_EXEC_TEMPLATE",$b->body());
 // ログイン処理とは別のFlow
 meq("BEFORE_FLOW_PRINT_TEMPLATE",$b->body());
 -->
+<!---
+$b = b();
+
+$b->do_post(test_map_url('logout'));
+eq(200,$b->status());
+meq('login',$b->body());
+
+$b->vars('user_name','hogeuser');
+$b->vars('password','hogehoge');
+$b->do_post(test_map_url('login'));
+eq(200,$b->status());
+meq('index',$b->body());
+
+$b->do_post(test_map_url('A'));
+eq(200,$b->status());
+meq('index',$b->body());
+
+$b->do_post(test_map_url('logout'));
+eq(200,$b->status());
+meq('login',$b->body());
+-->
+
+
 
