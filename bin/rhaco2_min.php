@@ -1,6 +1,6 @@
 <?php
 /**
- * @version 20111220
+ * @version 20120208
  */
 class App{
 	static private $def = array();
@@ -1138,36 +1138,29 @@ class Paginator extends Object{
 	protected $vars = array();
 	protected $query_name = 'page';
 	protected $order;
-
 	protected $contents = array();
 	protected $contents_length = 0;
 	protected $dynamic = false;
 	protected $marker;
-
 	private $asc = true;
 	private $prop;
 	private $next_c;
 	private $prev_c;
 	private $count_p = null;
-	
 	protected function __get_query_name__(){
 		return (empty($this->query_name)) ? 'page' : $this->query_name;
 	}
-	
 	public function page_first(){
 		return $this->offset + 1;
 	}
-	
 	public function page_last(){
 		return (($this->offset + $this->limit) < $this->total) ? ($this->offset + $this->limit) : $this->total;
 	}
-	
 	static public function dynamic_contents($paginate_by=20,$marker=null,$prop=null){
 		$self = new self($paginate_by);
 		$self->prop = $prop;
 		$self->marker = $marker;
 		$self->dynamic = true;
-
 		if(!empty($marker) && $marker[0] == '-'){
 			$self->asc = false;
 			$self->marker = substr($marker,1);
@@ -1178,7 +1171,6 @@ class Paginator extends Object{
 		$this->limit($paginate_by);
 		$this->total($total);
 		$this->current($current);
-		
 	}
 	protected function __cp__($obj){
 		if(!empty($obj)){
@@ -1191,59 +1183,43 @@ class Paginator extends Object{
 			}
 		}
 	}
-	
 	public function next(){
 		if($this->dynamic) return $this->next_c;
 		return $this->current + 1;
-		
 	}
-	
 	public function prev(){
 		if($this->dynamic) return $this->prev_c;
 		return $this->current - 1;
-		
 	}
-	
 	public function is_next(){
 		if($this->dynamic) return isset($this->next_c);
 		return ($this->last > $this->current);
-		
 	}
-	
 	public function is_prev(){
 		if($this->dynamic) return isset($this->prev_c);
 		return ($this->current > 1);
-		
 	}
-	
 	public function query_prev(){
 		return Http::query(array_merge(
 							$this->ar_vars()
 							,array($this->query_name()=>(($this->dynamic) ? (isset($this->prev_c) ? "-".$this->prev_c : null) : $this->prev()))
 						));
-		
 	}
-	
 	public function query_next(){
 		return Http::query(array_merge(
 							$this->ar_vars()
 							,array($this->query_name()=>(($this->dynamic) ? $this->next_c : $this->next()))
 						));
-		
 	}
-	
 	public function query_order($order){
 		if($this->is_vars('order')) $this->order = $this->rm_vars('order');
 		return Http::query(array_merge(
 							$this->ar_vars()
 							,array('order'=>$order,'porder'=>$this->order())
 						));
-		
 	}
-	
 	public function query($current){
 		return Http::query(array_merge($this->ar_vars(),array($this->query_name()=>$current)));
-		
 	}
 	protected function __set_current__($value){
 		$value = intval($value);
@@ -1276,17 +1252,13 @@ class Paginator extends Object{
 		$first = ($this->current > ($paginate/2)) ? @ceil($this->current - ($paginate/2)) : 1;
 		return ($this->last > ($first + $paginate)) ? ($first + $paginate) : $this->last;
 	}
-	
 	public function range($counter=10){
 		if($this->which_last($counter) > 0) return range((int)$this->which_first($counter),(int)$this->which_last($counter));
 		return array(1);
 	}
-	
 	public function has_range(){
 		return ($this->last > 1);
-		
 	}
-	
 	public function is_filled(){
 		if($this->contents_length >= $this->limit) return true;
 		return false;
@@ -1299,7 +1271,6 @@ class Paginator extends Object{
 		if($this->dynamic){
 			if($this->contents_length <= $this->limit){
 				$this->contents_length++;
-	
 				if($this->contents_length > $this->limit){
 					$this->finish_c();
 				}else{
@@ -1318,23 +1289,18 @@ class Paginator extends Object{
 			}
 		}
 	}
-	
 	public function is_asc(){
 		return $this->asc;
 	}
-	
 	public function is_desc(){
 		return !$this->asc;
 	}
-	
 	public function is_gt(){
 		return $this->asc;		
 	}
-	
 	public function is_lt(){
 		return !$this->asc;
 	}
-	
 	public function more(){
 		if(!$this->dynamic) return false;
 		if($this->contents_length > $this->limit) return false;		
@@ -1347,7 +1313,6 @@ class Paginator extends Object{
 		}
 		$this->count_p = $this->contents_length;
 		return true;
-		
 	}
 	private function finish_c(){
 		if(isset($this->contents[$this->limit-1])) $this->next_c = $this->mn($this->contents[$this->limit-1]);		
@@ -1358,9 +1323,6 @@ class Paginator extends Object{
 				(is_array($v) ? $v[$this->prop] : (is_object($v) ? (($v instanceof Object) ? $v->{$this->prop}() : $v->{$this->prop}) : null)) :
 				$v;
 	}
-	
-	
-	
 }
 /**
  * リクエストを処理する
