@@ -1,6 +1,6 @@
 <?php
 /**
- * @version 20120208
+ * @version 20120220
  */
 /**
  * アプリケーション定義
@@ -1499,10 +1499,6 @@ class Object{
  * @var integer $last 最後のページ番号 @{"set":false}
  * @var string $query_name pageを表すクエリの名前
  * @var mixed{} $vars query文字列とする値
- * @var mixed[] $contents １ページ分の内容
- * @var integer $contents_length コンテンツのサイズ @{"set":false}
- * @var boolean $dynamic ダイナミックページネーションとするか @{"set":false}
- * @var string $marker 現在の基点値 @{"set":false}
  * @var string $order 最後のソートキー
  */
 class Paginator extends Object{
@@ -1515,17 +1511,6 @@ class Paginator extends Object{
 	protected $vars = array();
 	protected $query_name = 'page';
 	protected $order;
-
-	protected $contents = array();
-	protected $contents_length = 0;
-	protected $dynamic = false;
-	protected $marker;
-
-	private $asc = true;
-	private $prop;
-	private $next_c;
-	private $prev_c;
-	private $count_p = null;
 	
 	protected function __get_query_name__(){
 		return (empty($this->query_name)) ? 'page' : $this->query_name;
@@ -1543,25 +1528,6 @@ class Paginator extends Object{
 	 */
 	public function page_last(){
 		return (($this->offset + $this->limit) < $this->total) ? ($this->offset + $this->limit) : $this->total;
-	}
-	/**
-	 * 動的コンテンツのPaginater
-	 * @param integer $paginate_by １ページの要素数
-	 * @param string $marker 基点となる値
-	 * @param string $prop 対象とするプロパティ名
-	 * @return self
-	 */
-	static public function dynamic_contents($paginate_by=20,$marker=null,$prop=null){
-		$self = new self($paginate_by);
-		$self->prop = $prop;
-		$self->marker = $marker;
-		$self->dynamic = true;
-
-		if(!empty($marker) && $marker[0] == '-'){
-			$self->asc = false;
-			$self->marker = substr($marker,1);
-		}
-		return $self;
 	}
 	protected function __new__($paginate_by=20,$current=1,$total=0){
 		$this->limit($paginate_by);
@@ -1585,7 +1551,6 @@ class Paginator extends Object{
 	 * @return integer
 	 */
 	public function next(){
-		if($this->dynamic) return $this->next_c;
 		return $this->current + 1;
 		
 	}
@@ -1594,7 +1559,6 @@ class Paginator extends Object{
 	 * @return integer
 	 */
 	public function prev(){
-		if($this->dynamic) return $this->prev_c;
 		return $this->current - 1;
 		
 	}
@@ -1603,7 +1567,6 @@ class Paginator extends Object{
 	 * @return boolean
 	 */
 	public function is_next(){
-		if($this->dynamic) return isset($this->next_c);
 		return ($this->last > $this->current);
 		
 	}
@@ -1612,7 +1575,6 @@ class Paginator extends Object{
 	 * @return boolean
 	 */
 	public function is_prev(){
-		if($this->dynamic) return isset($this->prev_c);
 		return ($this->current > 1);
 		
 	}
@@ -1623,7 +1585,7 @@ class Paginator extends Object{
 	public function query_prev(){
 		return Http::query(array_merge(
 							$this->ar_vars()
-							,array($this->query_name()=>(($this->dynamic) ? (isset($this->prev_c) ? "-".$this->prev_c : null) : $this->prev()))
+							,array($this->query_name()=>$this->prev())
 						));
 		
 	}
@@ -1634,7 +1596,7 @@ class Paginator extends Object{
 	public function query_next(){
 		return Http::query(array_merge(
 							$this->ar_vars()
-							,array($this->query_name()=>(($this->dynamic) ? $this->next_c : $this->next()))
+							,array($this->query_name()=>$this->next())
 						));
 		
 	}
@@ -1709,99 +1671,6 @@ class Paginator extends Object{
 		return ($this->last > 1);
 		
 	}
-	/**
-	 * limit分のコンテンツがあるか
-	 * @return boolean
-	 */
-	public function is_filled(){
-		if($this->contents_length >= $this->limit) return true;
-		return false;
-	}
-	public function add($mixed){
-		$this->contents($mixed);
-		return $this;
-	}
-	protected function __set_contents__($mixed){
-		if($this->dynamic){
-			if($this->contents_length <= $this->limit){
-				$this->contents_length++;
-	
-				if($this->contents_length > $this->limit){
-					$this->finish_c();
-				}else{
-					if($this->asc){
-						array_push($this->contents,$mixed);
-					}else{
-						array_unshift($this->contents,$mixed);
-					}
-				}
-			}
-		}else{
-			$this->total($this->total+1);
-			if($this->page_first() <= $this->total && $this->total <= ($this->offset + $this->limit)){
-				$this->contents_length++;
-				array_push($this->contents,$mixed);
-			}
-		}
-	}
-	/**
-	 * order by asc
-	 * @return boolean
-	 */
-	public function is_asc(){
-		return $this->asc;
-	}
-	/**
-	 * order by desc
-	 * @return boolean
-	 */
-	public function is_desc(){
-		return !$this->asc;
-	}
-	/**
-	 * n > marker 
-	 * @return boolean
-	 */
-	public function is_gt(){
-		return $this->asc;		
-	}
-	/**
-	 * n < marker
-	 * @return boolean
-	 */
-	public function is_lt(){
-		return !$this->asc;
-	}
-	/**
-	 * contentsがlimitに達していない場合にさらに要求をするか
-	 * @return boolean
-	 */
-	public function more(){
-		if(!$this->dynamic) return false;
-		if($this->contents_length > $this->limit) return false;		
-		if($this->count_p !== null){
-			if($this->count_p === $this->contents_length){
-				$this->finish_c();
-				return false;
-			}
-			$this->offset = $this->offset + $this->limit;
-		}
-		$this->count_p = $this->contents_length;
-		return true;
-		
-	}
-	private function finish_c(){
-		if(isset($this->contents[$this->limit-1])) $this->next_c = $this->mn($this->contents[$this->limit-1]);		
-		if(isset($this->contents[0]) && ((!$this->asc && $this->contents_length > $this->limit) || ($this->asc && $this->is_marker()))) $this->prev_c = $this->mn($this->contents[0]);
-	}
-	private function mn($v){
-		return isset($this->prop) ? 
-				(is_array($v) ? $v[$this->prop] : (is_object($v) ? (($v instanceof Object) ? $v->{$this->prop}() : $v->{$this->prop}) : null)) :
-				$v;
-	}
-	
-	
-	
 }
 /**
  * リクエストを処理する
@@ -3476,17 +3345,15 @@ class Template extends Object{
 					$counter = $tag->in_param('counter',50);
 					$total = '$__pagertotal__'.$uniq;
 					if(isset($navi['prev'])) $func .= sprintf('<?php if(%s->is_prev()){ ?>%s<a href="%s{%s.query_prev()}">%s</a>%s<?php } ?>',$param,sprintf($stag,'prev'),$href,$param,Gettext::trans('prev'),$etag);
-					if(isset($navi['first'])) $func .= sprintf('<?php if(!%s->is_dynamic() && %s->is_first(%d)){ ?>%s<a href="%s{%s.query(%s.first())}">{%s.first()}</a>%s%s...%s<?php } ?>',$param,$param,$counter,sprintf($stag,'first'),$href,$param,$param,$param,$etag,sprintf($stag,'first_gt'),$etag);
+					if(isset($navi['first'])) $func .= sprintf('<?php if(%s->is_first(%d)){ ?>%s<a href="%s{%s.query(%s.first())}">{%s.first()}</a>%s%s...%s<?php } ?>',$param,$counter,sprintf($stag,'first'),$href,$param,$param,$param,$etag,sprintf($stag,'first_gt'),$etag);
 					if(isset($navi['counter'])){
-						$func .= sprintf('<?php if(!%s->is_dynamic()){ ?>',$param);
 						$func .= sprintf('<?php %s = %s; if(!empty(%s)){ ?>',$total,$param,$total);
 						$func .= sprintf('<?php for(%s=%s->which_first(%d);%s<=%s->which_last(%d);%s++){ ?>',$counter_var,$param,$counter,$counter_var,$param,$counter,$counter_var);
 						$func .= sprintf('%s<?php if(%s == %s->current()){ ?><strong>{%s}</strong><?php }else{ ?><a href="%s{%s.query(%s)}">{%s}</a><?php } ?>%s',sprintf($stag,'count'),$counter_var,$param,$counter_var,$href,$param,$counter_var,$counter_var,$etag);
 						$func .= '<?php } ?>';
 						$func .= '<?php } ?>';
-						$func .= '<?php } ?>';
 					}
-					if(isset($navi['last'])) $func .= sprintf('<?php if(!%s->is_dynamic() && %s->is_last(%d)){ ?>%s...%s%s<a href="%s{%s.query(%s.last())}">{%s.last()}</a>%s<?php } ?>',$param,$param,$counter,sprintf($stag,'last_lt'),$etag,sprintf($stag,'last'),$href,$param,$param,$param,$etag);
+					if(isset($navi['last'])) $func .= sprintf('<?php if(%s->is_last(%d)){ ?>%s...%s%s<a href="%s{%s.query(%s.last())}">{%s.last()}</a>%s<?php } ?>',$param,$counter,sprintf($stag,'last_lt'),$etag,sprintf($stag,'last'),$href,$param,$param,$param,$etag);
 					if(isset($navi['next'])) $func .= sprintf('<?php if(%s->is_next()){ ?>%s<a href="%s{%s.query_next()}">%s</a>%s<?php } ?>',$param,sprintf($stag,'next'),$href,$param,Gettext::trans('next'),$etag);
 				}
 				$func .= "<?php } ?><?php }catch(Exception \$e){ if(!isset(\$_nes_)){print('".self::$exception_str."');} } ?>";
