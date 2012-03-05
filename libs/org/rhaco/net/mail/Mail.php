@@ -203,7 +203,6 @@ class Mail extends Object{
 		return $send;
 	}
 	private function jis($str){
-		if(preg_match("/^[\w- ]+$/i",$str)) return $str;
 		return sprintf("=?ISO-2022-JP?B?%s?=",base64_encode(mb_convert_encoding($str,"JIS",mb_detect_encoding($str))));
 	}
 	private function meta($type){
