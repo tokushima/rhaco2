@@ -74,7 +74,7 @@ class Queue extends Object{
 	 * @return org.rhaco.store.queue.Model[]
 	 */	
 	static public function reset($type,$sec=86400){
-		$time = microtime(true) - ($sec * 100.0000);
+		$time = microtime(true) - (float)$sec;
 		return Object::C(__CLASS__)->call_module('reset',$type,$time);
 	}
 	/**

@@ -16,7 +16,7 @@ class QueueDao extends Dao{
 CREATE TABLE `queue_dao` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `type` varchar(32) NOT NULL,
-  `data` varchar(1000) DEFAULT NULL,
+  `data` varchar(255) DEFAULT NULL,
   `lock` float DEFAULT NULL,
   `fin` timestamp DEFAULT NULL,
   `priority` int(11) NOT NULL DEFAULT '3',
