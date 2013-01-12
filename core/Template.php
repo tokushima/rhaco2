@@ -297,7 +297,6 @@ class Template extends Object{
 			eq(true,$template->has_module('after_template'));
 			eq($result,$template->execute($src));
 		 */
-		// TODO
 	}
 	final private function parse_url($src,$base){
 		if(substr($base,-1) !== '/') $base = $base.'/';
