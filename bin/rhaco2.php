@@ -2991,7 +2991,6 @@ class Template extends Object{
 		$src = str_replace(array('__ESC_DQ__','__ESC_SQ__','__ESC_DESC__'),array("\\\"","\\'","\\\\"),$src);
 		return $src;		
 		
-		// TODO
 	}
 	final private function parse_url($src,$base){
 		if(substr($base,-1) !== '/') $base = $base.'/';
