@@ -1,4 +1,9 @@
 <?php
+ini_set('xdebug.var_display_max_children',-1);
+ini_set('xdebug.var_display_max_data',-1);
+ini_set('xdebug.var_display_max_depth',-1);
+ini_set('xdebug.max_nesting_level',-1);
+
 C(Log)->add_module(R("org.rhaco.io.log.LogFile"));
 C(Log)->add_module(R("org.rhaco.io.log.LogGrowl"));
 

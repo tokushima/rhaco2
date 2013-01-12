@@ -1,6 +1,6 @@
 <?php
 /**
- * @version 20120220
+ * @version 20130112
  */
 /**
  * アプリケーション定義
@@ -2991,6 +2991,7 @@ class Template extends Object{
 		$src = str_replace(array('__ESC_DQ__','__ESC_SQ__','__ESC_DESC__'),array("\\\"","\\'","\\\\"),$src);
 		return $src;		
 		
+		// TODO
 	}
 	final private function parse_url($src,$base){
 		if(substr($base,-1) !== '/') $base = $base.'/';
@@ -3631,13 +3632,13 @@ class Template extends Object{
 	final private function check_selected($name,$value,$selected){
 		return sprintf('<?php if('
 					.'isset(%s) && (%s === %s '
-										.' || (ctype_digit(Text::str(%s)) && %s == %s)'
+										.' || (!is_array(%s) && ctype_digit((string)%s) && (string)%s === (string)%s)'
 										.' || ((%s == "true" || %s == "false") ? (%s === (%s == "true")) : false)'
 										.' || in_array(%s,((is_array(%s)) ? %s : (is_null(%s) ? array() : array(%s))),true) '
 									.') '
 					.'){print(" %s=\"%s\"");} ?>'
 					,$name,$name,$value
-					,$name,$name,$value
+					,$name,$name,$name,$value
 					,$value,$value,$name,$value
 					,$value,$name,$name,$name,$name
 					,$selected,$selected
@@ -4604,6 +4605,7 @@ class Text{
 	 */
 	final static public function str($obj){
 		if(is_bool($obj)) return ($obj) ? "true" : "false";
+		if(is_array($obj)) return '';
 		if(!is_object($obj)) return (string)$obj;
 		return (string)$obj;
 		
@@ -5982,7 +5984,6 @@ class Flow extends Request{
 		 * @param self $this
 		 */
 		$this->call_module('init_flow_handle',$this);
-		if(method_exists($this,'__init__')) $this->__init__();
 		if(!$this->is_login() && $this->a('user','require') === true && $map['method'] !== 'do_login'){
 			/**
 			 * user[require=true]で未ログイン時のログイン処理の前処理
@@ -8377,7 +8378,7 @@ class Test extends Object{
 				}else if(is_file($f=($tests_path.str_replace('.','/',$class_path).'.php'))){
 					$doctest = self::get_unittest($f);
 				}else{
-					throw new ErrorException($class_path.' test not found');
+					throw new ErrorException($class_path.', '.$e->getMessage());
 				}
 			}
 		}
@@ -9125,7 +9126,7 @@ class Rhaco2{
  */
 function error_handler($errno,$errstr,$errfile,$errline){
 	if(strpos($errstr,'Use of undefined constant') !== false && preg_match("/\'(.+?)\'/",$errstr,$m) && class_exists($m[1])) return define($m[1],$m[1]);
-	if(strpos($errstr,' should be compatible with that of') !== false || strpos($errstr,'Strict Standards') !== false) return true;
+	if(strpos($errstr,' should be compatible with') !== false || strpos($errstr,'Strict Standards') !== false) return true;
 	throw new ErrorException($errstr,0,$errno,$errfile,$errline);
 }
 /**

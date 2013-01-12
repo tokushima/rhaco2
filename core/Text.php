@@ -811,6 +811,7 @@ class Text{
 	 */
 	final static public function str($obj){
 		if(is_bool($obj)) return ($obj) ? "true" : "false";
+		if(is_array($obj)) return '';
 		if(!is_object($obj)) return (string)$obj;
 		return (string)$obj;
 		/***
@@ -818,6 +819,8 @@ class Text{
 			$obj = new $name;
 			eq($name,self::str($obj));
 			eq("1",self::str(1));
+			eq("abc",self::str("abc"));
+			eq("",self::str(array("abc")));
 		 */
 	}
 }

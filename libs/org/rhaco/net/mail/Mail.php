@@ -49,9 +49,9 @@ class Mail extends Object{
 			$mail->to("test1@rhaco.org","abc");
 			$mail->to("test2@rhaco.org");
 			$mail->to("test3@rhaco.org","ghi");
-			eq(array('test1@rhaco.org'=>'"abc" <test1@rhaco.org>',
+			eq(array('test1@rhaco.org'=>'"=?ISO-2022-JP?B?YWJj?=" <test1@rhaco.org>',
 					'test2@rhaco.org'=>'"test2@rhaco.org" <test2@rhaco.org>',
-					'test3@rhaco.org'=>'"ghi" <test3@rhaco.org>',)
+					'test3@rhaco.org'=>'"=?ISO-2022-JP?B?Z2hp?=" <test3@rhaco.org>',)
 					,$mail->to());
 		*/
 	}
@@ -62,9 +62,9 @@ class Mail extends Object{
 			$mail->cc("test1@rhaco.org","abc");
 			$mail->cc("test2@rhaco.org");
 			$mail->cc("test3@rhaco.org","ghi");
-			eq(array('test1@rhaco.org'=>'"abc" <test1@rhaco.org>',
+			eq(array('test1@rhaco.org'=>'"=?ISO-2022-JP?B?YWJj?=" <test1@rhaco.org>',
 					'test2@rhaco.org'=>'"test2@rhaco.org" <test2@rhaco.org>',
-					'test3@rhaco.org'=>'"ghi" <test3@rhaco.org>',)
+					'test3@rhaco.org'=>'"=?ISO-2022-JP?B?Z2hp?=" <test3@rhaco.org>',)
 					,$mail->cc());
 		*/
 	}
@@ -75,9 +75,9 @@ class Mail extends Object{
 			$mail->bcc("test1@rhaco.org","abc");
 			$mail->bcc("test2@rhaco.org");
 			$mail->bcc("test3@rhaco.org","ghi");
-			eq(array('test1@rhaco.org'=>'"abc" <test1@rhaco.org>',
+			eq(array('test1@rhaco.org'=>'"=?ISO-2022-JP?B?YWJj?=" <test1@rhaco.org>',
 					'test2@rhaco.org'=>'"test2@rhaco.org" <test2@rhaco.org>',
-					'test3@rhaco.org'=>'"ghi" <test3@rhaco.org>',)
+					'test3@rhaco.org'=>'"=?ISO-2022-JP?B?Z2hp?=" <test3@rhaco.org>',)
 					,$mail->bcc());
 		*/
 	}

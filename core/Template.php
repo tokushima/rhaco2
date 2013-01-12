@@ -268,13 +268,13 @@ class Template extends Object{
 		return $src;		
 		/***
 			$filter = create_class('
-				public function init_template($src){
+				public function init_template(&$src){
 					$src = "====\n".$src."\n====";
 				}
-				public function before_template($src){
+				public function before_template(&$src){
 					$src = "____\n".$src."\n____";
 				}
-				public function after_template($src){
+				public function after_template(&$src){
 					$src = "####\n".$src."\n####";
 				}
 			');
@@ -292,8 +292,12 @@ class Template extends Object{
 				');
 			$template = new Template();
 			$template->add_module(new $filter());
+			eq(true,$template->has_module('init_template'));
+			eq(true,$template->has_module('before_template'));
+			eq(true,$template->has_module('after_template'));
 			eq($result,$template->execute($src));
 		 */
+		// TODO
 	}
 	final private function parse_url($src,$base){
 		if(substr($base,-1) !== '/') $base = $base.'/';
@@ -1627,13 +1631,13 @@ class Template extends Object{
 	final private function check_selected($name,$value,$selected){
 		return sprintf('<?php if('
 					.'isset(%s) && (%s === %s '
-										.' || (ctype_digit(Text::str(%s)) && %s == %s)'
+										.' || (!is_array(%s) && ctype_digit((string)%s) && (string)%s === (string)%s)'
 										.' || ((%s == "true" || %s == "false") ? (%s === (%s == "true")) : false)'
 										.' || in_array(%s,((is_array(%s)) ? %s : (is_null(%s) ? array() : array(%s))),true) '
 									.') '
 					.'){print(" %s=\"%s\"");} ?>'
 					,$name,$name,$value
-					,$name,$name,$value
+					,$name,$name,$name,$value
 					,$value,$value,$name,$value
 					,$value,$name,$name,$name,$name
 					,$selected,$selected

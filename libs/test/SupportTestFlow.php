@@ -1,5 +1,5 @@
 <?php
-class CoreTestSupportFlow extends Flow{
+class SupportTestFlow extends Flow{
 	private $init_count = 0;
 	
 	protected function __init__(){

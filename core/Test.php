@@ -189,7 +189,7 @@ class Test extends Object{
 				}else if(is_file($f=($tests_path.str_replace('.','/',$class_path).'.php'))){
 					$doctest = self::get_unittest($f);
 				}else{
-					throw new ErrorException($class_path.' test not found');
+					throw new ErrorException($class_path.', '.$e->getMessage());
 				}
 			}
 		}

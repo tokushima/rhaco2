@@ -488,7 +488,6 @@ class Flow extends Request{
 		 * @param self $this
 		 */
 		$this->call_module('init_flow_handle',$this);
-		if(method_exists($this,'__init__')) $this->__init__();
 		if(!$this->is_login() && $this->a('user','require') === true && $map['method'] !== 'do_login'){
 			/**
 			 * user[require=true]で未ログイン時のログイン処理の前処理

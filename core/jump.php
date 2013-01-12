@@ -25,7 +25,7 @@ class Rhaco2{
  */
 function error_handler($errno,$errstr,$errfile,$errline){
 	if(strpos($errstr,'Use of undefined constant') !== false && preg_match("/\'(.+?)\'/",$errstr,$m) && class_exists($m[1])) return define($m[1],$m[1]);
-	if(strpos($errstr,' should be compatible with that of') !== false || strpos($errstr,'Strict Standards') !== false) return true;
+	if(strpos($errstr,' should be compatible with') !== false || strpos($errstr,'Strict Standards') !== false) return true;
 	throw new ErrorException($errstr,0,$errno,$errfile,$errline);
 }
 /**
