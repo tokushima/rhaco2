@@ -1,6 +1,6 @@
 <?php
 /**
- * @version 20130112
+ * @version 20130114
  */
 /**
  * アプリケーション定義
@@ -1697,7 +1697,6 @@ class Request extends Object{
 
 	static private $session_limiter = 'nocache';
 	static private $session_expire = 10800;
-	static private $session_gc_divisor = 100;
 	static private $session_name = 'SID';
 
 	/**
@@ -1705,13 +1704,11 @@ class Request extends Object{
 	 * @param alnum $name セッション名
 	 * @param choice(none,nocache,private,private_no_expire,public) $limiter キャッシュリミッタ
 	 * @param integer $expire 有効期間(秒)
-	 * @param integer $gc_divisor GCの実行タイミング
 	 */
-	static public function config_session($name,$limiter=null,$expire=null,$gc_divisor=null){
+	static public function config_session($name,$limiter=null,$expire=null){
 		if(!empty($name)) self::$session_name = $name;
 		if(isset($limiter)) self::$session_limiter = $limiter;
 		if(isset($expire)) self::$session_expire = (int)$expire;
-		if(isset($gc_divisor)) self::$session_gc_divisor = $gc_divisor;
 		if(!ctype_alpha(self::$session_name)) throw new InvalidArgumentException('session name is is not a alpha value');
 	}
 	/**
@@ -1749,14 +1746,13 @@ class Request extends Object{
 					foreach($_COOKIE as $key => $value) $this->vars[$key] = $this->set_var_value($value);
 				}
 				if(!self::$session_start){
-					ini_set('session.gc_probability','1');
-					ini_set('session.gc_divisor',self::$session_gc_divisor);
 					session_cache_limiter(self::$session_limiter);
 					session_cache_expire((int)(self::$session_expire/60));
 					session_name(self::$session_name);
 
 					if(Object::C(__CLASS__)->has_module('session_read')){
 						ini_set('session.save_handler','user');
+
 						session_set_save_handler(
 							array($this,'__session_open__'),array($this,'__session_close__'),array($this,'__session_read__'),
 							array($this,'__session_write__'),array($this,'__session_destroy__'),array($this,'__session_gc__')

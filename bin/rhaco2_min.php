@@ -1,6 +1,6 @@
 <?php
 /**
- * @version 20130112
+ * @version 20130114
  */
 class App{
 	static private $def = array();
@@ -1256,13 +1256,11 @@ class Request extends Object{
 	private $login_id;
 	static private $session_limiter = 'nocache';
 	static private $session_expire = 10800;
-	static private $session_gc_divisor = 100;
 	static private $session_name = 'SID';
-	static public function config_session($name,$limiter=null,$expire=null,$gc_divisor=null){
+	static public function config_session($name,$limiter=null,$expire=null){
 		if(!empty($name)) self::$session_name = $name;
 		if(isset($limiter)) self::$session_limiter = $limiter;
 		if(isset($expire)) self::$session_expire = (int)$expire;
-		if(isset($gc_divisor)) self::$session_gc_divisor = $gc_divisor;
 		if(!ctype_alpha(self::$session_name)) throw new InvalidArgumentException('session name is is not a alpha value');
 	}
 	static public function config_port($http,$https){
@@ -1295,8 +1293,6 @@ class Request extends Object{
 					foreach($_COOKIE as $key => $value) $this->vars[$key] = $this->set_var_value($value);
 				}
 				if(!self::$session_start){
-					ini_set('session.gc_probability','1');
-					ini_set('session.gc_divisor',self::$session_gc_divisor);
 					session_cache_limiter(self::$session_limiter);
 					session_cache_expire((int)(self::$session_expire/60));
 					session_name(self::$session_name);
