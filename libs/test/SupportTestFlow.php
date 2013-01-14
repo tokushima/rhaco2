@@ -8,4 +8,13 @@ class SupportTestFlow extends Flow{
 	public function init_count(){
 		$this->vars('init_count',$this->init_count);
 	}
+	public function check_session(){
+		$ses = __CLASS__.'::'.__METHOD__;
+		$var = $this->in_sessions($ses);
+		if(empty($var)) $var = 0;
+		$var++;
+		$this->sessions($ses,$var);
+		
+		$this->vars('count',$var);
+	}
 }
