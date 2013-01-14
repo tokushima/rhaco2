@@ -17,4 +17,11 @@ class SupportTestFlow extends Flow{
 		
 		$this->vars('count',$var);
 	}
+	public function check_login(){
+		$this->vars('is_login',$this->is_login());
+		$this->vars('user',$this->user());
+	}
+	public function redirect_check_login(){
+		$this->redirect_method('check_login');
+	}
 }
