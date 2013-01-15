@@ -3,8 +3,22 @@
 	<handler>
 		<map url="init_count" class="test.SupportTestFlow" method="init_count" name="init_count" />
 		<map url="init_count_noext" class="test.SupportTestFlowNoExt" method="init_count" name="init_count_noext" />
-		<map url="check_session" class="test.SupportTestFlow" method="check_session" name="check_session" />		
+		<map url="check_session" class="test.SupportTestFlow" method="check_session" name="check_session" />
 	</handler>
+	
+	<handler>
+		<maps>
+			<map url="check_session_same_scope_a" class="test.SupportTestFlow" method="check_session" name="check_session_same_scope_a" />
+		</maps>
+		<maps>
+			<map url="check_session_same_scope_b" class="test.SupportTestFlow" method="check_session" name="check_session_same_scope_b" />
+		</maps>
+	</handler>
+	<handler>
+		<map url="check_session_different_scope" class="test.SupportTestFlow" method="check_session" name="check_session_different_scope" />
+	</handler>
+	
+	
 	<handler>
 		<module class="test.SupportTestLoginModule" />
 		<map url="login" name="login" method="do_login">
@@ -51,6 +65,32 @@ $browser = test_browser();
 $browser->do_get(test_map_url("check_session"));
 eq(200,$browser->status());
 eq('<result><count>1</count></result>',$browser->body());
+-->
+
+<!---
+# check_session_same
+$browser = test_browser();
+$browser->do_get(test_map_url("check_session_same_scope_a"));
+eq('<result><count>1</count></result>',$browser->body());
+
+$browser->do_get(test_map_url("check_session_same_scope_a"));
+eq('<result><count>2</count></result>',$browser->body());
+
+$browser->do_get(test_map_url("check_session_same_scope_b"));
+eq('<result><count>3</count></result>',$browser->body());
+
+$browser->do_get(test_map_url("check_session_different_scope"));
+eq('<result><count>1</count></result>',$browser->body());
+
+$browser->do_get(test_map_url("check_session_same_scope_a"));
+eq('<result><count>4</count></result>',$browser->body());
+
+$browser->do_get(test_map_url("check_session_same_scope_b"));
+eq('<result><count>5</count></result>',$browser->body());
+
+
+$browser->do_get(test_map_url("check_session_different_scope"));
+eq('<result><count>2</count></result>',$browser->body());
 -->
 
 <!---
